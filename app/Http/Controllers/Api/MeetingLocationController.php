@@ -56,6 +56,9 @@ class MeetingLocationController extends Controller
 
         $meetingLocation->update($validated);
 
+        // Refresh the model to get the updated data
+        $meetingLocation->refresh();
+
         return response()->json($meetingLocation);
     }
 
