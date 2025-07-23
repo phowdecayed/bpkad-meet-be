@@ -7,6 +7,7 @@ use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Laravel\Sanctum\Sanctum;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class MeetingLocationControllerTest extends TestCase
@@ -20,7 +21,7 @@ class MeetingLocationControllerTest extends TestCase
         Sanctum::actingAs(User::factory()->create(), ['*']);
     }
 
-    /** @test */
+    #[Test]
     public function it_can_list_meeting_locations()
     {
         MeetingLocation::factory()->count(3)->create();
@@ -31,7 +32,7 @@ class MeetingLocationControllerTest extends TestCase
             ->assertJsonCount(3);
     }
 
-    /** @test */
+    #[Test]
     public function it_can_create_a_meeting_location()
     {
         $data = [
@@ -49,7 +50,7 @@ class MeetingLocationControllerTest extends TestCase
         $this->assertDatabaseHas('meeting_locations', $data);
     }
 
-    /** @test */
+    #[Test]
     public function it_can_show_a_meeting_location()
     {
         $location = MeetingLocation::factory()->create();
@@ -60,7 +61,7 @@ class MeetingLocationControllerTest extends TestCase
             ->assertJsonFragment(['id' => $location->id]);
     }
 
-    /** @test */
+    #[Test]
     public function it_can_update_a_meeting_location()
     {
         $location = MeetingLocation::factory()->create();
@@ -74,7 +75,7 @@ class MeetingLocationControllerTest extends TestCase
         $this->assertDatabaseHas('meeting_locations', $updateData);
     }
 
-    /** @test */
+    #[Test]
     public function it_can_delete_a_meeting_location()
     {
         $location = MeetingLocation::factory()->create();
