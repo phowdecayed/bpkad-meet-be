@@ -63,6 +63,31 @@ class MeetingControllerTest extends TestCase
     #[Test]
     public function it_can_create_an_online_meeting()
     {
+        // Use the real response you provided to create a perfect mock payload.
+        $zoomResponsePayload = json_decode('{
+            "uuid": "3SjLbv0IRgmY2LX0FzPJSg==",
+            "id": 72093907398,
+            "host_id": "LW5hOGSJRm-dbItnXqlNeQ",
+            "host_email": "rachmatsharyadi@gmail.com",
+            "topic": "Test Meeting",
+            "type": 2,
+            "status": "waiting",
+            "start_time": "2025-07-24T12:21:11Z",
+            "duration": 30,
+            "timezone": "Asia/Jakarta",
+            "created_at": "2025-07-23T14:41:31Z",
+            "start_url": "https://us04web.zoom.us/s/72093907398?zak=...",
+            "join_url": "https://us04web.zoom.us/j/72093907398?pwd=...",
+            "password": "X4rfxX",
+            "settings": { "host_video": true }
+        }', true);
+
+        // Fake the HTTP client to intercept the call to Zoom.
+        Http::fake([
+            'https://zoom.us/oauth/token' => Http::response(['access_token' => 'fake_token', 'expires_in' => 3600]),
+            'https://api.zoom.us/v2/users/me/meetings' => Http::response($zoomResponsePayload, 201),
+        ]);
+
         $startTime = now()->addDays(5)->startOfSecond();
         $data = [
             'topic' => 'Online Meeting Test',
@@ -73,7 +98,12 @@ class MeetingControllerTest extends TestCase
 
         $response = $this->postJson('/api/meetings', $data);
 
-        $response->assertStatus(201);
+        $response->assertStatus(201)
+            ->assertJsonFragment(['topic' => 'Online Meeting Test'])
+            ->assertJsonPath('zoom_meeting.zoom_id', 72093907398);
+
+        $this->assertDatabaseHas('meetings', ['topic' => 'Online Meeting Test']);
+        $this->assertDatabaseCount('zoom_meetings', 1);
     }
 
 
