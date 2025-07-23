@@ -4,7 +4,7 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
-        <title>CMS Backend API</title>
+        <title>BPKAD Backend API</title>
 
         <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -59,7 +59,7 @@
     <body>
         <div class="container">
             <div class="card">
-                <h1>CMS Backend API</h1>
+                <h1>BPKAD Zoom Backend API</h1>
                 <p>The API is up and running.</p>
                 <div class="version-info">
                     Laravel v{{ Illuminate\Foundation\Application::VERSION }} (PHP v{{ PHP_VERSION }})

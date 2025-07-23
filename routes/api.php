@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\VerificationController;
 use App\Http\Controllers\Api\ContactMessageController;
+use App\Http\Controllers\Api\ZoomController;
 
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
@@ -14,6 +15,9 @@ Route::get('/email/verify/{id}/{hash}', [VerificationController::class, 'verify'
     ->name('verification.verify');
 
 Route::middleware('auth:sanctum')->group(function () {
+    Route::post('/zoom/auth', [ZoomController::class, 'authenticate']);
+    Route::post('/zoom/meetings', [ZoomController::class, 'createMeeting']);
+    Route::delete('/zoom/meetings', [ZoomController::class, 'deleteMeeting']);
     Route::get('/user', [AuthController::class, 'user']);
     Route::post('/logout', [AuthController::class, 'logout']);
 
