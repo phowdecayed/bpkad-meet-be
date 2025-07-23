@@ -10,11 +10,11 @@ class ZoomMeeting extends Model
     use HasFactory;
 
     protected $fillable = [
+        'meeting_id',
         'zoom_id',
         'uuid',
         'host_id',
         'host_email',
-        'topic',
         'type',
         'status',
         'start_time',
@@ -32,4 +32,9 @@ class ZoomMeeting extends Model
         'start_time' => 'datetime',
         'created_at_zoom' => 'datetime',
     ];
+
+    public function meeting()
+    {
+        return $this->belongsTo(Meeting::class);
+    }
 }
