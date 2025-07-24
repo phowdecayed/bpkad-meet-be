@@ -97,6 +97,7 @@ class MeetingService
     {
         // If the meeting has an associated Zoom meeting, delete it from Zoom first.
         if ($meeting->zoomMeeting) {
+            $this->prepareZoomService();
             $this->zoomService->deleteMeeting($meeting->zoomMeeting->zoom_id);
         }
 
@@ -120,10 +121,34 @@ class MeetingService
 
             // If the meeting is online or hybrid and has a zoom meeting, update it.
             if ($meeting->zoomMeeting && in_array($meeting->type, ['online', 'hybrid'])) {
+                $this->prepareZoomService();
                 $this->zoomService->updateMeeting($meeting->zoomMeeting->zoom_id, $data);
             }
 
-            return $meeting->load(['location', 'zoomMeeting']);
+            return $meeting->load(['organizer', 'location', 'zoomMeeting']);
         });
+    }
+
+    /**
+     * Prepare the Zoom service with credentials from the database.
+     *
+     * @return void
+     */
+    private function prepareZoomService(): void
+    {
+        $zoomSetting = Setting::where('group', 'zoom')->first();
+
+        if (!$zoomSetting) {
+            throw ValidationException::withMessages([
+                'zoom_api' => 'Zoom integration settings are not configured.'
+            ]);
+        }
+
+        $credentials = $zoomSetting->payload;
+        $this->zoomService->setCredentials(
+            $credentials['client_id'],
+            $credentials['client_secret'],
+            $credentials['account_id']
+        );
     }
 }

@@ -4,6 +4,7 @@ This document provides a high-level overview of the API endpoints for the BPKAD 
 
 ## Table of Contents
 
+- [Public Endpoints](./api/public.md)
 - [Authentication & User Management](./api/authentication.md)
 - [User Profile Management](./api/user_profile.md)
 - [Admin: Role & Permission Management](./api/roles_permissions.md)

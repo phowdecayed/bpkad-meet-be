@@ -21,6 +21,9 @@ Route::post('/reset-password', [AuthController::class, 'resetPassword'])->name('
 Route::get('/email/verify/{id}/{hash}', [VerificationController::class, 'verify'])
     ->name('verification.verify');
 
+// Public Calendar Route
+Route::get('/public/calendar', [MeetingController::class, 'publicCalendar']);
+
 Route::middleware('auth:sanctum')->group(function () {
     // User and Auth
     Route::post('/register', [AuthController::class, 'register'])->middleware('permission:manage users');

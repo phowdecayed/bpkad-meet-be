@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\MeetingResource;
+use App\Http\Resources\PublicMeetingResource;
 use App\Models\Meeting;
 use App\Services\MeetingService;
 use Illuminate\Http\Request;
@@ -42,6 +43,24 @@ class MeetingController extends Controller
             ->get();
 
         return MeetingResource::collection($meetings);
+    }
+
+    /**
+     * Fetch public meetings for a specific date range.
+     */
+    public function publicCalendar(Request $request)
+    {
+        $validated = $request->validate([
+            'start_date' => 'required|date',
+            'end_date' => 'required|date|after_or_equal:start_date',
+        ]);
+
+        $meetings = Meeting::with('location')
+            ->whereBetween('start_time', [$validated['start_date'], $validated['end_date']])
+            ->latest()
+            ->get();
+
+        return PublicMeetingResource::collection($meetings);
     }
 
     /**
