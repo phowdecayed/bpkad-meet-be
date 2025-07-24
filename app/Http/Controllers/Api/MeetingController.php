@@ -23,7 +23,25 @@ class MeetingController extends Controller
      */
     public function index()
     {
-        return MeetingResource::collection(Meeting::with(['location', 'zoomMeeting'])->latest()->paginate());
+        return MeetingResource::collection(Meeting::with(['organizer', 'location', 'zoomMeeting'])->latest()->paginate());
+    }
+
+    /**
+     * Fetch meetings for a specific date range for calendar view.
+     */
+    public function calendar(Request $request)
+    {
+        $validated = $request->validate([
+            'start_date' => 'required|date',
+            'end_date' => 'required|date|after_or_equal:start_date',
+        ]);
+
+        $meetings = Meeting::with(['organizer', 'location', 'zoomMeeting'])
+            ->whereBetween('start_time', [$validated['start_date'], $validated['end_date']])
+            ->latest()
+            ->get();
+
+        return MeetingResource::collection($meetings);
     }
 
     /**
@@ -32,10 +50,11 @@ class MeetingController extends Controller
     public function store(Request $request)
     {
         $validated = $this->validateStoreRequest($request->all());
+        $validated['organizer_id'] = auth()->id();
 
         $meeting = $this->meetingService->createMeeting($validated);
 
-        return (new MeetingResource($meeting->load(['location', 'zoomMeeting'])))
+        return (new MeetingResource($meeting->load(['organizer', 'location', 'zoomMeeting'])))
             ->response()
             ->setStatusCode(201);
     }
@@ -69,7 +88,7 @@ class MeetingController extends Controller
      */
     public function show(Meeting $meeting)
     {
-        return new MeetingResource($meeting->load(['location', 'zoomMeeting']));
+        return new MeetingResource($meeting->load(['organizer', 'location', 'zoomMeeting']));
     }
 
     /**

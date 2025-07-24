@@ -27,6 +27,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
 
     // Core Meeting Management
+    Route::get('/calendar', [MeetingController::class, 'calendar'])->middleware('permission:manage meetings');
     Route::apiResource('meetings', MeetingController::class)->except(['destroy'])
         ->middleware('permission:manage meetings');
     Route::delete('/meetings/{meeting}', [MeetingController::class, 'destroy'])

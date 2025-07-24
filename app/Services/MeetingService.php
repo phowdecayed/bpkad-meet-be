@@ -30,6 +30,7 @@ class MeetingService
         return DB::transaction(function () use ($data) {
             // 1. Create the core meeting record
             $meeting = Meeting::create([
+                'organizer_id' => $data['organizer_id'],
                 'topic' => $data['topic'],
                 'description' => $data['description'] ?? null,
                 'start_time' => $data['start_time'],

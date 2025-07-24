@@ -852,6 +852,43 @@
 			"name": "Core Meetings",
 			"item": [
 				{
+					"name": "Get Meetings for Calendar",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/calendar?start_date=2025-08-01&end_date=2025-08-31",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"calendar"
+							],
+							"query": [
+								{
+									"key": "start_date",
+									"value": "2025-08-01"
+								},
+								{
+									"key": "end_date",
+									"value": "2025-08-31"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
 					"name": "List Meetings",
 					"request": {
 						"method": "GET",
@@ -860,12 +897,10 @@
 								"key": "Content-Type",
 								"value": "application/json"
 							},
-
 							{
 								"key": "Accept",
 								"value": "application/json"
 							}
-
 						],
 						"url": {
 							"raw": "{{base_url}}/api/meetings",

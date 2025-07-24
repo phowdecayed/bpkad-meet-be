@@ -422,7 +422,20 @@ Endpoints for administrators to manage application-wide settings.
 
 ## Core Meeting Management
 
-### 1. List All Meetings
+### 1. Get Meetings for Calendar
+
+- **Method:** `GET`
+- **Endpoint:** `/api/calendar`
+- **Description:** Retrieves all meetings within a specific date range, suitable for a calendar view. **Requires `manage meetings` permission.**
+- **Headers:** `Authorization: Bearer <token>`
+- **Query Parameters:**
+| Parameter | Type | Validation | Description |
+|---|---|---|---|
+| `start_date` | date | required | The start of the date range (e.g., `2025-08-01`). |
+| `end_date` | date | required | The end of the date range (e.g., `2025-08-31`). |
+- **Success Response (200):** A collection of meeting objects within the specified range.
+
+### 2. List All Meetings (Paginated)
 
 - **Method:** `GET`
 - **Endpoint:** `/api/meetings`
@@ -434,7 +447,7 @@ Endpoints for administrators to manage application-wide settings.
 | `page` | integer | The page number for pagination. |
 - **Success Response (200):** A paginated list of meeting objects.
 
-### 2. Create a Meeting
+### 3. Create a Meeting
 
 - **Method:** `POST`
 - **Endpoint:** `/api/meetings`
@@ -454,6 +467,36 @@ Endpoints for administrators to manage application-wide settings.
 | `settings` | object | nullable | An object of Zoom-specific settings. See Zoom API docs. |
 
 - **Success Response (201):** Returns the newly created meeting object with its relations.
+
+- **Example Success Response:**
+  ```json
+  {
+    "data": {
+        "id": 1,
+        "organizer": {
+            "id": 1,
+            "name": "Example Admin",
+            "email": "admin@example.com",
+            "created_at": "2025-07-24T04:20:00Z",
+            "updated_at": "2025-07-24T04:20:00Z",
+            "roles": []
+        },
+        "topic": "New Online Meeting",
+        "description": "A test meeting.",
+        "start_time": "2025-08-01T10:00:00.000000Z",
+        "duration": 60,
+        "type": "online",
+        "host_key": "123456",
+        "location": null,
+        "zoom_meeting": {
+            "id": 1,
+            "zoom_id": 123456789,
+            "uuid": "abcdefg==",
+            "..."
+        }
+    }
+  }
+  ```
 
 ### 3. Get a Specific Meeting
 

@@ -3,6 +3,7 @@
 namespace Database\Factories;
 
 use App\Models\MeetingLocation;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -18,6 +19,7 @@ class MeetingFactory extends Factory
     public function definition(): array
     {
         return [
+            'organizer_id' => User::factory(),
             'topic' => $this->faker->sentence(3),
             'description' => $this->faker->paragraph,
             'start_time' => $this->faker->dateTimeBetween('+1 day', '+1 month'),

@@ -10,6 +10,7 @@ class Meeting extends Model
     use HasFactory;
 
     protected $fillable = [
+        'organizer_id',
         'topic',
         'description',
         'start_time',
@@ -21,6 +22,11 @@ class Meeting extends Model
     protected $casts = [
         'start_time' => 'datetime',
     ];
+
+    public function organizer()
+    {
+        return $this->belongsTo(User::class, 'organizer_id');
+    }
 
     public function location()
     {
