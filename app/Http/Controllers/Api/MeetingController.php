@@ -14,6 +14,8 @@ class MeetingController extends Controller
 
     public function __construct(MeetingService $meetingService)
     {
+        $this->middleware('permission:manage meetings', ['except' => ['destroy']]);
+        $this->middleware('permission:delete meetings', ['only' => ['destroy']]);
         $this->meetingService = $meetingService;
     }
 
