@@ -1,3 +1,5 @@
+[<-- Back to Index](../api_documentation.md)
+
 # Authentication & User Management
 
 This section covers endpoints for user registration, login, and general user account management.

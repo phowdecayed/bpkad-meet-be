@@ -1,3 +1,5 @@
+[<-- Back to Index](../api_documentation.md)
+
 # Application Settings Management
 
 Endpoints for administrators to manage application-wide settings.

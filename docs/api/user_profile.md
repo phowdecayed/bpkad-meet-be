@@ -1,3 +1,5 @@
+[<-- Back to Index](../api_documentation.md)
+
 # User Profile Management
 
 Endpoints for authenticated users to manage their own profile.

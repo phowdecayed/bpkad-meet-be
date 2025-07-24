@@ -1,3 +1,5 @@
+[<-- Back to Index](../api_documentation.md)
+
 # Statistics
 
 ### 1. Get Dashboard Statistics

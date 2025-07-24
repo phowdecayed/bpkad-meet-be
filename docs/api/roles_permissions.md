@@ -1,3 +1,5 @@
+[<-- Back to Index](../api_documentation.md)
+
 # Admin: Role & Permission Management
 
 Endpoints for administrators to manage roles and permissions.
