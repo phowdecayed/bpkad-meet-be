@@ -115,6 +115,7 @@ class MeetingController extends Controller
      */
     public function destroy(Meeting $meeting)
     {
+        $this->authorize('delete', $meeting);
         $this->meetingService->deleteMeeting($meeting);
 
         return response()->json(['message' => 'Meeting deleted successfully.'], 200);
@@ -125,6 +126,8 @@ class MeetingController extends Controller
      */
     public function update(Request $request, Meeting $meeting)
     {
+        $this->authorize('update', $meeting);
+
         $validated = $request->validate([
             'topic' => 'sometimes|required|string|max:255',
             'description' => 'nullable|string',
@@ -136,6 +139,6 @@ class MeetingController extends Controller
 
         $updatedMeeting = $this->meetingService->updateMeeting($meeting, $validated);
 
-        return new MeetingResource($updatedMeeting->load(['location', 'zoomMeeting']));
+        return new MeetingResource($updatedMeeting->load(['organizer', 'location', 'zoomMeeting']));
     }
 }

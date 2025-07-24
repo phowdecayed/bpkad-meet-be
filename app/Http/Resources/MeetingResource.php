@@ -15,6 +15,8 @@ class MeetingResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
+        $user = $request->user();
+
         return [
             'id' => $this->id,
             'organizer' => new UserResource($this->whenLoaded('organizer')),
@@ -23,7 +25,10 @@ class MeetingResource extends JsonResource
             'start_time' => $this->start_time,
             'duration' => $this->duration,
             'type' => $this->type,
-            'host_key' => $this->when(isset($this->host_key), $this->host_key),
+            'host_key' => $this->when(
+                isset($this->host_key) && $user && ($user->id === $this->organizer_id || $user->can('manage meetings')),
+                $this->host_key
+            ),
             'location' => new MeetingLocationResource($this->whenLoaded('location')),
             'zoom_meeting' => $this->whenLoaded('zoomMeeting'),
         ];

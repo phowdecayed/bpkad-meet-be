@@ -90,7 +90,7 @@
 
 - **Method:** `PUT` or `PATCH`
 - **Endpoint:** `/api/meetings/{id}`
-- **Description:** Updates a meeting's details. **Requires `manage meetings` permission.**
+- **Description:** Updates a meeting's details. Requires the user to be the meeting organizer or have the `manage meetings` permission.
 - **Headers:** `Authorization: Bearer <token>`
 
 - **Payload Parameters:** (All are optional)
@@ -109,7 +109,7 @@
 
 - **Method:** `DELETE`
 - **Endpoint:** `/api/meetings/{id}`
-- **Description:** Deletes a meeting. **Requires `delete meetings` permission.**
+- **Description:** Deletes a meeting. Requires the user to be the meeting organizer or have the `delete meetings` permission.
 - **Headers:** `Authorization: Bearer <token>`
 - **Success Response (200):**
   ```json
