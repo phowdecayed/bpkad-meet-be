@@ -21,6 +21,7 @@ class MeetingResource extends JsonResource
             'start_time' => $this->start_time,
             'duration' => $this->duration,
             'type' => $this->type,
+            'host_key' => $this->when(isset($this->host_key), $this->host_key),
             'location' => new MeetingLocationResource($this->whenLoaded('location')),
             'zoom_meeting' => $this->whenLoaded('zoomMeeting'),
         ];

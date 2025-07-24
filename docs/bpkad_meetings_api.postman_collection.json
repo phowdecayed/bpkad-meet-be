@@ -568,13 +568,129 @@
 						}
 					},
 					"response": []
-				}
-			]
-		},
-		{
-			"name": "Meeting Locations",
-			"item": [
-				{
+                }
+            ]
+        },
+        {
+            "name": "Application Settings",
+            "item": [
+                {
+                    "name": "List Settings",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}/api/settings",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "settings"
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Create Zoom Setting",
+                    "request": {
+                        "method": "POST",
+                        "header": [],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"name\": \"Default Zoom Account\",\n    \"group\": \"zoom\",\n    \"payload\": {\n        \"client_id\": \"YOUR_ZOOM_CLIENT_ID\",\n        \"client_secret\": \"YOUR_ZOOM_CLIENT_SECRET\",\n        \"account_id\": \"YOUR_ZOOM_ACCOUNT_ID\",\n        \"host_key\": \"YOUR_ZOOM_HOST_KEY\"\n    }\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/api/settings",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "settings"
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Get Setting",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}/api/settings/1",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "settings",
+                                "1"
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Update Setting",
+                    "request": {
+                        "method": "PATCH",
+                        "header": [],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"payload\": {\n        \"client_id\": \"UPDATED_CLIENT_ID\"\n    }\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/api/settings/1",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "settings",
+                                "1"
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Delete Setting",
+                    "request": {
+                        "method": "DELETE",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}/api/settings/1",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "settings",
+                                "1"
+                            ]
+                        }
+                    },
+                    "response": []
+                }
+            ]
+        },
+        {
+            "name": "Meeting Locations",
+            "item": [
+                {
 					"name": "List Locations",
 					"request": {
 						"method": "GET",
@@ -781,9 +897,9 @@
 
 						],
 						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"topic\": \"Online Project Kickoff\",\n    \"description\": \"Kickoff meeting for the new portal project.\",\n    \"start_time\": \"2025-09-01T10:00:00Z\",\n    \"duration\": 60,\n    \"type\": \"online\"\n}"
-						},
+                            "mode": "raw",
+                            "raw": "{\n    \"topic\": \"Online Project Kickoff\",\n    \"description\": \"Kickoff meeting for the new portal project.\",\n    \"start_time\": \"2025-09-01T10:00:00Z\",\n    \"duration\": 60,\n    \"type\": \"online\",\n    \"password\": \"secret123\"\n}"
+                        },
 						"url": {
 							"raw": "{{base_url}}/api/meetings",
 							"host": [

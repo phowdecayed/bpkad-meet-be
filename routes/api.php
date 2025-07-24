@@ -10,6 +10,7 @@ use App\Http\Controllers\Api\MeetingController;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\RoleController;
 use App\Http\Controllers\Api\PermissionController;
+use App\Http\Controllers\Api\SettingController;
 
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/forgot-password', [AuthController::class, 'forgotPassword'])->name('password.email');
@@ -53,6 +54,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/roles/{role}/permissions', [RoleController::class, 'assignPermission'])->middleware('permission:manage roles');
     Route::delete('/roles/{role}/permissions', [RoleController::class, 'revokePermission'])->middleware('permission:manage roles');
     Route::get('/permissions', [PermissionController::class, 'index'])->middleware('permission:manage roles');
+
+    // Application Settings Management
+    Route::apiResource('settings', SettingController::class)->middleware('permission:manage settings');
 
 
     // Resend Verification Email

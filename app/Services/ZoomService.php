@@ -14,19 +14,36 @@ class ZoomService
     protected $accountId;
     protected $baseUrl = 'https://api.zoom.us/v2';
 
-    public function __construct()
+    public function __construct($clientId = null, $clientSecret = null, $accountId = null)
     {
-        $this->clientId = config('zoom.client_id');
-        $this->clientSecret = config('zoom.client_secret');
-        $this->accountId = config('zoom.account_id');
+        $this->clientId = $clientId ?? config('zoom.client_id');
+        $this->clientSecret = $clientSecret ?? config('zoom.client_secret');
+        $this->accountId = $accountId ?? config('zoom.account_id');
     }
+
+    /**
+     * Set the Zoom credentials dynamically.
+     */
+    public function setCredentials($clientId, $clientSecret, $accountId): self
+    {
+        $this->clientId = $clientId;
+        $this->clientSecret = $clientSecret;
+        $this->accountId = $accountId;
+
+        // Forget the token to force re-authentication with new credentials
+        Cache::forget('zoom_access_token_' . $this->accountId);
+
+        return $this;
+    }
+
 
     /**
      * Get the access token from cache or fetch a new one.
      */
     protected function getAccessToken()
     {
-        return Cache::remember('zoom_access_token', 3500, function () {
+        $cacheKey = 'zoom_access_token_' . $this->accountId;
+        return Cache::remember($cacheKey, 3500, function () {
             return $this->fetchNewAccessToken();
         });
     }
@@ -108,14 +125,19 @@ class ZoomService
             'settings' => [
                 'host_video' => true,
                 'participant_video' => true,
-                'join_before_host' => false,
+                'join_before_host' => true,
                 'mute_upon_entry' => true,
-                'enforce_login' => true,
+                'waiting_room' => false,
             ],
         ];
 
         // Recursively merge the arrays to handle nested settings correctly.
         $data = array_replace_recursive($defaults, $meetingData);
+
+        // Ensure top-level keys like 'password' are handled correctly
+        if (isset($meetingData['password'])) {
+            $data['password'] = $meetingData['password'];
+        }
 
         $response = $this->makeRequest('POST', '/users/me/meetings', $data);
 

@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\Meeting;
+use App\Models\Setting;
 use App\Models\ZoomMeeting;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
@@ -39,11 +40,28 @@ class MeetingService
 
             // 2. If the meeting is online or hybrid, create a Zoom meeting
             if (in_array($data['type'], ['online', 'hybrid'])) {
+                // Find the first available zoom credentials from settings
+                $zoomSetting = Setting::where('group', 'zoom')->first();
+
+                if (!$zoomSetting) {
+                    throw ValidationException::withMessages([
+                        'zoom_api' => 'Zoom integration settings are not configured.'
+                    ]);
+                }
+
+                $credentials = $zoomSetting->payload;
+                $this->zoomService->setCredentials(
+                    $credentials['client_id'],
+                    $credentials['client_secret'],
+                    $credentials['account_id']
+                );
+
                 $zoomResponse = $this->zoomService->createMeeting(
                     [
                         'topic' => $data['topic'],
                         'start_time' => $data['start_time'],
                         'duration' => $data['duration'],
+                        'password' => $data['password'] ?? null,
                         // Pass any other zoom-specific settings from the request
                         'settings' => $data['settings'] ?? [],
                     ],
@@ -55,6 +73,11 @@ class MeetingService
                     throw ValidationException::withMessages([
                         'zoom_api' => 'Failed to create Zoom meeting: ' . $zoomResponse->body()
                     ]);
+                }
+
+                // Attach the host_key to the meeting model for the response
+                if (isset($credentials['host_key'])) {
+                    $meeting->host_key = $credentials['host_key'];
                 }
             }
 

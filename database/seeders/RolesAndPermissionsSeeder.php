@@ -18,20 +18,27 @@ class RolesAndPermissionsSeeder extends Seeder
         // Reset cached roles and permissions
         app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
 
-        // create permissions
-        Permission::create(['name' => 'manage meetings']);
-        Permission::create(['name' => 'delete meetings']);
-        Permission::create(['name' => 'manage users']);
-        Permission::create(['name' => 'manage roles']);
+        // Define and create permissions
+        $permissions = [
+            'manage meetings',
+            'delete meetings',
+            'manage users',
+            'manage roles',
+            'manage settings',
+        ];
 
-        // create roles and assign created permissions
-        $userRole = Role::create(['name' => 'user'])
-            ->givePermissionTo(['manage meetings']);
+        foreach ($permissions as $permission) {
+            Permission::firstOrCreate(['name' => $permission, 'guard_name' => 'web']);
+        }
 
-        $adminRole = Role::create(['name' => 'admin']);
-        $adminRole->givePermissionTo(Permission::all());
+        // Create roles and assign permissions
+        $userRole = Role::firstOrCreate(['name' => 'user', 'guard_name' => 'web']);
+        $userRole->syncPermissions(['manage meetings']);
 
-        // create demo users
+        $adminRole = Role::firstOrCreate(['name' => 'admin', 'guard_name' => 'web']);
+        $adminRole->syncPermissions($permissions);
+
+        // Create demo users
         $user = User::firstOrCreate(
             ['email' => 'user@example.com'],
             [

@@ -59,6 +59,7 @@ class MeetingController extends Controller
                 Rule::requiredIf(fn () => in_array($data['type'] ?? null, ['offline', 'hybrid'])),
                 'exists:meeting_locations,id',
             ],
+            'password' => 'nullable|string|max:10', // Zoom password validation
             'settings' => 'nullable|array', // For Zoom settings
         ])->validate();
     }
