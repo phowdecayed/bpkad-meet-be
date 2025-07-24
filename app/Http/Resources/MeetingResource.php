@@ -26,7 +26,7 @@ class MeetingResource extends JsonResource
             'duration' => $this->duration,
             'type' => $this->type,
             'host_key' => $this->when(
-                isset($this->host_key) && $user && ($user->id === $this->organizer_id || $user->can('manage meetings')),
+                isset($this->host_key) && $user && $user->can('viewHostKey', $this->resource),
                 $this->host_key
             ),
             'location' => new MeetingLocationResource($this->whenLoaded('location')),

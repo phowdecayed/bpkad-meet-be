@@ -49,6 +49,14 @@ class MeetingPolicy
     }
 
     /**
+     * Determine whether the user can view the host key for the model.
+     */
+    public function viewHostKey(User $user, Meeting $meeting): bool
+    {
+        return $user->id === $meeting->organizer_id || $user->can('manage meetings');
+    }
+
+    /**
      * Determine whether the user can restore the model.
      */
     public function restore(User $user, Meeting $meeting): bool
