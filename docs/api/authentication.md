@@ -102,7 +102,64 @@ This section covers endpoints for user registration, login, and general user acc
 }
   ```
 
-### 4. Logout
+### 4. List All Users (Admin Only)
+
+- **Method:** `GET`
+- **Endpoint:** `/api/users`
+- **Description:** Retrieves a paginated list of all users and their assigned roles. Requires the `view users` permission.
+- **Headers:** `Authorization: Bearer <token>`
+- **Success Response (200):**
+  ```json
+  {
+    "data": [
+        {
+            "id": 1,
+            "name": "Rachmat Sharyadi",
+            "email": "me@rachmat.id",
+            "email_verified_at": "2025-07-24T04:20:00.000000Z",
+            "created_at": "2025-07-24T04:20:00.000000Z",
+            "updated_at": "2025-07-24T04:20:00.000000Z",
+            "roles": [
+                {
+                    "id": 1,
+                    "name": "admin"
+                }
+            ]
+        },
+        {
+            "id": 2,
+            "name": "Example User",
+            "email": "user@example.com",
+            "email_verified_at": null,
+            "created_at": "2025-07-24T05:00:00.000000Z",
+            "updated_at": "2025-07-24T05:00:00.000000Z",
+            "roles": [
+                {
+                    "id": 2,
+                    "name": "user"
+                }
+            ]
+        }
+    ],
+    "links": {
+        "first": "http://localhost/api/users?page=1",
+        "last": "http://localhost/api/users?page=1",
+        "prev": null,
+        "next": null
+    },
+    "meta": {
+        "current_page": 1,
+        "from": 1,
+        "last_page": 1,
+        "path": "http://localhost/api/users",
+        "per_page": 15,
+        "to": 2,
+        "total": 2
+    }
+}
+  ```
+
+### 5. Logout
 
 - **Method:** `POST`
 - **Endpoint:** `/api/logout`
@@ -115,7 +172,7 @@ This section covers endpoints for user registration, login, and general user acc
   }
   ```
 
-### 5. Forgot Password
+### 6. Forgot Password
 
 - **Method:** `POST`
 - **Endpoint:** `/api/forgot-password`
@@ -133,7 +190,7 @@ This section covers endpoints for user registration, login, and general user acc
   }
   ```
 
-### 6. Reset Password
+### 7. Reset Password
 
 - **Method:** `POST`
 - **Endpoint:** `/api/reset-password`
@@ -154,14 +211,14 @@ This section covers endpoints for user registration, login, and general user acc
   }
   ```
 
-### 7. Verify Email Address
+### 8. Verify Email Address
 
 - **Method:** `GET`
 - **Endpoint:** `/api/email/verify/{id}/{hash}`
 - **Description:** This is the endpoint that the user clicks in their verification email. It is not typically called directly by a client.
 - **Success Response:** Redirects to the frontend URL with a success message.
 
-### 8. Resend Verification Email
+### 9. Resend Verification Email
 
 - **Method:** `POST`
 - **Endpoint:** `/api/email/verification-notification`

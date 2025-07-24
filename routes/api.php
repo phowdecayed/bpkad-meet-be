@@ -59,6 +59,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/user/change-name', [UserController::class, 'changeName']);
     Route::post('/user/change-email', [UserController::class, 'changeEmail']);
 
+    // User Management
+    Route::get('/users', [UserController::class, 'index'])->middleware('permission:view users');
+
     // Role and Permission Management
     Route::apiResource('roles', RoleController::class)->middleware('permission:manage roles');
     Route::post('/roles/{role}/permissions', [RoleController::class, 'assignPermission'])->middleware('permission:manage roles');
