@@ -82,7 +82,7 @@ class AuthenticationTest extends TestCase
 
         $response->assertStatus(403)
             ->assertJson([
-                'message' => 'You do not have the required permissions to perform this action.',
+                'message' => 'User does not have the right permissions.',
             ]);
     }
 

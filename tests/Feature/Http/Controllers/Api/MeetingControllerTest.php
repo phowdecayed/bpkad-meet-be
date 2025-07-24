@@ -81,6 +81,17 @@ class MeetingControllerTest extends TestCase
     #[Test]
     public function it_can_create_an_online_meeting()
     {
+        // Create a dummy setting for the test
+        \App\Models\Setting::create([
+            'name' => 'Test Zoom Account',
+            'group' => 'zoom',
+            'payload' => [
+                'client_id' => 'test',
+                'client_secret' => 'test',
+                'account_id' => 'test',
+            ],
+        ]);
+
         Http::fake([
             'https://zoom.us/oauth/token' => Http::response(['access_token' => 'fake_token']),
             'https://api.zoom.us/v2/users/me/meetings' => Http::response(json_decode('{
