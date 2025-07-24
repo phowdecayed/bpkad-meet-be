@@ -28,6 +28,11 @@ class Meeting extends Model
         return $this->belongsTo(User::class, 'organizer_id');
     }
 
+    public function participants()
+    {
+        return $this->belongsToMany(User::class);
+    }
+
     public function location()
     {
         return $this->belongsTo(MeetingLocation::class);

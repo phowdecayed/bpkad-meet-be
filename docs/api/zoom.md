@@ -2,7 +2,7 @@
 
 # Zoom-Specific Management
 
-**Note:** All endpoints in this section require the `manage meetings` permission.
+**Note:** All endpoints in this section require the `edit meetings` permission.
 
 ### 1. Create a Zoom Meeting (Legacy)
 

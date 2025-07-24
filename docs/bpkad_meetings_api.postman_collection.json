@@ -60,12 +60,10 @@
 								"key": "Content-Type",
 								"value": "application/json"
 							},
-
 							{
 								"key": "Accept",
 								"value": "application/json"
 							}
-
 						],
 						"body": {
 							"mode": "raw",
@@ -93,12 +91,10 @@
 								"key": "Content-Type",
 								"value": "application/json"
 							},
-
 							{
 								"key": "Accept",
 								"value": "application/json"
 							}
-
 						],
 						"body": {
 							"mode": "raw",
@@ -126,12 +122,10 @@
 								"key": "Content-Type",
 								"value": "application/json"
 							},
-
 							{
 								"key": "Accept",
 								"value": "application/json"
 							}
-
 						],
 						"url": {
 							"raw": "{{base_url}}/api/user",
@@ -155,12 +149,10 @@
 								"key": "Content-Type",
 								"value": "application/json"
 							},
-
 							{
 								"key": "Accept",
 								"value": "application/json"
 							}
-
 						],
 						"url": {
 							"raw": "{{base_url}}/api/logout",
@@ -184,12 +176,10 @@
 								"key": "Accept",
 								"value": "application/json"
 							},
-
 							{
 								"key": "Content-Type",
 								"value": "application/json"
 							}
-
 						],
 						"body": {
 							"mode": "raw",
@@ -222,12 +212,10 @@
 								"key": "Accept",
 								"value": "application/json"
 							},
-
 							{
 								"key": "Content-Type",
 								"value": "application/json"
 							}
-
 						],
 						"body": {
 							"mode": "raw",
@@ -260,12 +248,10 @@
 								"key": "Content-Type",
 								"value": "application/json"
 							},
-
 							{
 								"key": "Accept",
 								"value": "application/json"
 							}
-
 						],
 						"url": {
 							"raw": "{{base_url}}/api/email/verification-notification",
@@ -295,12 +281,10 @@
 								"key": "Accept",
 								"value": "application/json"
 							},
-
 							{
 								"key": "Content-Type",
 								"value": "application/json"
 							}
-
 						],
 						"body": {
 							"mode": "raw",
@@ -334,12 +318,10 @@
 								"key": "Accept",
 								"value": "application/json"
 							},
-
 							{
 								"key": "Content-Type",
 								"value": "application/json"
 							}
-
 						],
 						"body": {
 							"mode": "raw",
@@ -373,12 +355,10 @@
 								"key": "Accept",
 								"value": "application/json"
 							},
-
 							{
 								"key": "Content-Type",
 								"value": "application/json"
 							}
-
 						],
 						"body": {
 							"mode": "raw",
@@ -417,12 +397,10 @@
 								"key": "Accept",
 								"value": "application/json"
 							},
-
 							{
 								"key": "Content-Type",
 								"value": "application/json"
 							}
-
 						],
 						"url": {
 							"raw": "{{base_url}}/api/roles",
@@ -446,12 +424,10 @@
 								"key": "Accept",
 								"value": "application/json"
 							},
-
 							{
 								"key": "Content-Type",
 								"value": "application/json"
 							}
-
 						],
 						"body": {
 							"mode": "raw",
@@ -484,12 +460,10 @@
 								"key": "Accept",
 								"value": "application/json"
 							},
-
 							{
 								"key": "Content-Type",
 								"value": "application/json"
 							}
-
 						],
 						"url": {
 							"raw": "{{base_url}}/api/permissions",
@@ -513,12 +487,10 @@
 								"key": "Accept",
 								"value": "application/json"
 							},
-
 							{
 								"key": "Content-Type",
 								"value": "application/json"
 							}
-
 						],
 						"body": {
 							"mode": "raw",
@@ -553,12 +525,10 @@
 								"key": "Accept",
 								"value": "application/json"
 							},
-
 							{
 								"key": "Content-Type",
 								"value": "application/json"
 							}
-
 						],
 						"body": {
 							"mode": "raw",
@@ -611,17 +581,17 @@
 						}
 					},
 					"response": []
-                }
-            ]
-        },
-        {
-            "name": "Application Settings",
-            "item": [
-                {
-                    "name": "List Settings",
-                    "request": {
-                        "method": "GET",
-                        "header": [
+				}
+			]
+		},
+		{
+			"name": "Application Settings",
+			"item": [
+				{
+					"name": "List Settings",
+					"request": {
+						"method": "GET",
+						"header": [
 							{
 								"key": "Accept",
 								"value": "application/json"
@@ -631,24 +601,24 @@
 								"value": "application/json"
 							}
 						],
-                        "url": {
-                            "raw": "{{base_url}}/api/settings",
-                            "host": [
-                                "{{base_url}}"
-                            ],
-                            "path": [
-                                "api",
-                                "settings"
-                            ]
-                        }
-                    },
-                    "response": []
-                },
-                {
-                    "name": "Create Zoom Setting",
-                    "request": {
-                        "method": "POST",
-                        "header": [
+						"url": {
+							"raw": "{{base_url}}/api/settings",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"settings"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create Zoom Setting",
+					"request": {
+						"method": "POST",
+						"header": [
 							{
 								"key": "Accept",
 								"value": "application/json"
@@ -658,33 +628,33 @@
 								"value": "application/json"
 							}
 						],
-                        "body": {
-                            "mode": "raw",
-                            "raw": "{\n    \"name\": \"Default Zoom Account\",\n    \"group\": \"zoom\",\n    \"payload\": {\n        \"client_id\": \"YOUR_ZOOM_CLIENT_ID\",\n        \"client_secret\": \"YOUR_ZOOM_CLIENT_SECRET\",\n        \"account_id\": \"YOUR_ZOOM_ACCOUNT_ID\",\n        \"host_key\": \"YOUR_ZOOM_HOST_KEY\"\n    }\n}",
-                            "options": {
-                                "raw": {
-                                    "language": "json"
-                                }
-                            }
-                        },
-                        "url": {
-                            "raw": "{{base_url}}/api/settings",
-                            "host": [
-                                "{{base_url}}"
-                            ],
-                            "path": [
-                                "api",
-                                "settings"
-                            ]
-                        }
-                    },
-                    "response": []
-                },
-                {
-                    "name": "Get Setting",
-                    "request": {
-                        "method": "GET",
-                        "header": [
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Default Zoom Account\",\n    \"group\": \"zoom\",\n    \"payload\": {\n        \"client_id\": \"YOUR_ZOOM_CLIENT_ID\",\n        \"client_secret\": \"YOUR_ZOOM_CLIENT_SECRET\",\n        \"account_id\": \"YOUR_ZOOM_ACCOUNT_ID\",\n        \"host_key\": \"YOUR_ZOOM_HOST_KEY\"\n    }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/settings",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"settings"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Setting",
+					"request": {
+						"method": "GET",
+						"header": [
 							{
 								"key": "Accept",
 								"value": "application/json"
@@ -694,25 +664,25 @@
 								"value": "application/json"
 							}
 						],
-                        "url": {
-                            "raw": "{{base_url}}/api/settings/1",
-                            "host": [
-                                "{{base_url}}"
-                            ],
-                            "path": [
-                                "api",
-                                "settings",
-                                "1"
-                            ]
-                        }
-                    },
-                    "response": []
-                },
-                {
-                    "name": "Update Setting",
-                    "request": {
-                        "method": "PATCH",
-                        "header": [
+						"url": {
+							"raw": "{{base_url}}/api/settings/1",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"settings",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Setting",
+					"request": {
+						"method": "PATCH",
+						"header": [
 							{
 								"key": "Accept",
 								"value": "application/json"
@@ -722,34 +692,34 @@
 								"value": "application/json"
 							}
 						],
-                        "body": {
-                            "mode": "raw",
-                            "raw": "{\n    \"payload\": {\n        \"client_id\": \"UPDATED_CLIENT_ID\"\n    }\n}",
-                            "options": {
-                                "raw": {
-                                    "language": "json"
-                                }
-                            }
-                        },
-                        "url": {
-                            "raw": "{{base_url}}/api/settings/1",
-                            "host": [
-                                "{{base_url}}"
-                            ],
-                            "path": [
-                                "api",
-                                "settings",
-                                "1"
-                            ]
-                        }
-                    },
-                    "response": []
-                },
-                {
-                    "name": "Delete Setting",
-                    "request": {
-                        "method": "DELETE",
-                        "header": [
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"payload\": {\n        \"client_id\": \"UPDATED_CLIENT_ID\"\n    }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/settings/1",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"settings",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Setting",
+					"request": {
+						"method": "DELETE",
+						"header": [
 							{
 								"key": "Accept",
 								"value": "application/json"
@@ -759,30 +729,30 @@
 								"value": "application/json"
 							}
 						],
-                        "url": {
-                            "raw": "{{base_url}}/api/settings/1",
-                            "host": [
-                                "{{base_url}}"
-                            ],
-                            "path": [
-                                "api",
-                                "settings",
-                                "1"
-                            ]
-                        }
-                    },
-                    "response": []
-                }
-            ]
-        },
-        {
-            "name": "Statistics",
-            "item": [
-                {
-                    "name": "Get Dashboard Statistics",
-                    "request": {
-                        "method": "GET",
-                        "header": [
+						"url": {
+							"raw": "{{base_url}}/api/settings/1",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"settings",
+								"1"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Statistics",
+			"item": [
+				{
+					"name": "Get Dashboard Statistics",
+					"request": {
+						"method": "GET",
+						"header": [
 							{
 								"key": "Accept",
 								"value": "application/json"
@@ -792,26 +762,26 @@
 								"value": "application/json"
 							}
 						],
-                        "url": {
-                            "raw": "{{base_url}}/api/statistics/dashboard",
-                            "host": [
-                                "{{base_url}}"
-                            ],
-                            "path": [
-                                "api",
-                                "statistics",
-                                "dashboard"
-                            ]
-                        }
-                    },
-                    "response": []
-                }
-            ]
-        },
-        {
-            "name": "Meeting Locations",
-            "item": [
-                {
+						"url": {
+							"raw": "{{base_url}}/api/statistics/dashboard",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"statistics",
+								"dashboard"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Meeting Locations",
+			"item": [
+				{
 					"name": "List Locations",
 					"request": {
 						"method": "GET",
@@ -820,12 +790,10 @@
 								"key": "Content-Type",
 								"value": "application/json"
 							},
-
 							{
 								"key": "Accept",
 								"value": "application/json"
 							}
-
 						],
 						"url": {
 							"raw": "{{base_url}}/api/meeting-locations",
@@ -849,12 +817,10 @@
 								"key": "Content-Type",
 								"value": "application/json"
 							},
-
 							{
 								"key": "Accept",
 								"value": "application/json"
 							}
-
 						],
 						"body": {
 							"mode": "raw",
@@ -882,12 +848,10 @@
 								"key": "Content-Type",
 								"value": "application/json"
 							},
-
 							{
 								"key": "Accept",
 								"value": "application/json"
 							}
-
 						],
 						"url": {
 							"raw": "{{base_url}}/api/meeting-locations/1",
@@ -912,12 +876,10 @@
 								"key": "Content-Type",
 								"value": "application/json"
 							},
-
 							{
 								"key": "Accept",
 								"value": "application/json"
 							}
-
 						],
 						"body": {
 							"mode": "raw",
@@ -946,12 +908,10 @@
 								"key": "Content-Type",
 								"value": "application/json"
 							},
-
 							{
 								"key": "Accept",
 								"value": "application/json"
 							}
-
 						],
 						"url": {
 							"raw": "{{base_url}}/api/meeting-locations/1",
@@ -1045,17 +1005,15 @@
 								"key": "Content-Type",
 								"value": "application/json"
 							},
-
 							{
 								"key": "Accept",
 								"value": "application/json"
 							}
-
 						],
 						"body": {
-                            "mode": "raw",
-                            "raw": "{\n    \"topic\": \"Online Project Kickoff\",\n    \"description\": \"Kickoff meeting for the new portal project.\",\n    \"start_time\": \"2025-09-01T10:00:00Z\",\n    \"duration\": 60,\n    \"type\": \"online\",\n    \"password\": \"secret123\"\n}"
-                        },
+							"mode": "raw",
+							"raw": "{\n    \"topic\": \"Online Project Kickoff\",\n    \"description\": \"Kickoff meeting for the new portal project.\",\n    \"start_time\": \"2025-09-01T10:00:00Z\",\n    \"duration\": 60,\n    \"type\": \"online\",\n    \"password\": \"secret123\",\n    \"participants\": [2, 3]\n}"
+						},
 						"url": {
 							"raw": "{{base_url}}/api/meetings",
 							"host": [
@@ -1078,12 +1036,10 @@
 								"key": "Content-Type",
 								"value": "application/json"
 							},
-
 							{
 								"key": "Accept",
 								"value": "application/json"
 							}
-
 						],
 						"body": {
 							"mode": "raw",
@@ -1111,12 +1067,10 @@
 								"key": "Content-Type",
 								"value": "application/json"
 							},
-
 							{
 								"key": "Accept",
 								"value": "application/json"
 							}
-
 						],
 						"body": {
 							"mode": "raw",
@@ -1144,12 +1098,10 @@
 								"key": "Content-Type",
 								"value": "application/json"
 							},
-
 							{
 								"key": "Accept",
 								"value": "application/json"
 							}
-
 						],
 						"url": {
 							"raw": "{{base_url}}/api/meetings/1",
@@ -1174,12 +1126,10 @@
 								"key": "Content-Type",
 								"value": "application/json"
 							},
-
 							{
 								"key": "Accept",
 								"value": "application/json"
 							}
-
 						],
 						"body": {
 							"mode": "raw",
@@ -1208,12 +1158,10 @@
 								"key": "Content-Type",
 								"value": "application/json"
 							},
-
 							{
 								"key": "Accept",
 								"value": "application/json"
 							}
-
 						],
 						"url": {
 							"raw": "{{base_url}}/api/meetings/1",
@@ -1224,6 +1172,76 @@
 								"api",
 								"meetings",
 								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "List Participants",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/meetings/1/participants",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"meetings",
+								"1",
+								"participants"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Invite Participant",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"user_id\": 2\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/meetings/1/invite",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"meetings",
+								"1",
+								"invite"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Remove Participant",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/meetings/1/participants/2",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"meetings",
+								"1",
+								"participants",
+								"2"
 							]
 						}
 					},
@@ -1243,12 +1261,10 @@
 								"key": "Content-Type",
 								"value": "application/json"
 							},
-
 							{
 								"key": "Accept",
 								"value": "application/json"
 							}
-
 						],
 						"url": {
 							"raw": "{{base_url}}/api/zoom/auth",
@@ -1273,12 +1289,10 @@
 								"key": "Content-Type",
 								"value": "application/json"
 							},
-
 							{
 								"key": "Accept",
 								"value": "application/json"
 							}
-
 						],
 						"body": {
 							"mode": "raw",
@@ -1307,12 +1321,10 @@
 								"key": "Content-Type",
 								"value": "application/json"
 							},
-
 							{
 								"key": "Accept",
 								"value": "application/json"
 							}
-
 						],
 						"url": {
 							"raw": "{{base_url}}/api/zoom/meetings",
@@ -1337,12 +1349,10 @@
 								"key": "Content-Type",
 								"value": "application/json"
 							},
-
 							{
 								"key": "Accept",
 								"value": "application/json"
 							}
-
 						],
 						"url": {
 							"raw": "{{base_url}}/api/zoom/meetings?meetingId=123456789",
@@ -1359,7 +1369,6 @@
 									"key": "meetingId",
 									"value": "123456789"
 								}
-
 							]
 						}
 					},
@@ -1374,12 +1383,10 @@
 								"key": "Content-Type",
 								"value": "application/json"
 							},
-
 							{
 								"key": "Accept",
 								"value": "application/json"
 							}
-
 						],
 						"body": {
 							"mode": "raw",
@@ -1400,7 +1407,6 @@
 									"key": "meetingId",
 									"value": "123456789"
 								}
-
 							]
 						}
 					},
@@ -1415,12 +1421,10 @@
 								"key": "Content-Type",
 								"value": "application/json"
 							},
-
 							{
 								"key": "Accept",
 								"value": "application/json"
 							}
-
 						],
 						"url": {
 							"raw": "{{base_url}}/api/zoom/meetings?meetingId=123456789",
@@ -1437,7 +1441,6 @@
 									"key": "meetingId",
 									"value": "123456789"
 								}
-
 							]
 						}
 					},
@@ -1452,12 +1455,10 @@
 								"key": "Content-Type",
 								"value": "application/json"
 							},
-
 							{
 								"key": "Accept",
 								"value": "application/json"
 							}
-
 						],
 						"url": {
 							"raw": "{{base_url}}/api/zoom/meetings/3SjLbv0IRgmY2LX0FzPJSg==/summary",
@@ -1484,12 +1485,10 @@
 								"key": "Content-Type",
 								"value": "application/json"
 							},
-
 							{
 								"key": "Accept",
 								"value": "application/json"
 							}
-
 						],
 						"url": {
 							"raw": "{{base_url}}/api/zoom/past_meetings?meetingId=123456789",
@@ -1506,7 +1505,6 @@
 									"key": "meetingId",
 									"value": "123456789"
 								}
-
 							]
 						}
 					},
@@ -1523,7 +1521,6 @@
 				"value": "{{auth_token}}",
 				"type": "string"
 			}
-
 		]
 	},
 	"event": [
@@ -1557,6 +1554,5 @@
 			"value": "",
 			"type": "string"
 		}
-
 	]
 }

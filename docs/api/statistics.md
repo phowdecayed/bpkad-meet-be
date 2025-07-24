@@ -6,7 +6,7 @@
 
 - **Method:** `GET`
 - **Endpoint:** `/api/statistics/dashboard`
-- **Description:** Retrieves a cached set of key statistics for the application dashboard. **Requires `manage meetings` permission.**
+- **Description:** Retrieves a cached set of key statistics for the application dashboard. **Requires `view meetings` permission.**
 - **Headers:** `Authorization: Bearer <token>`
 - **Success Response (200):** A JSON object containing various statistics.
   ```json
@@ -43,5 +43,5 @@
 ## Common Error Responses
 
 - **401 Unauthorized:** The request is missing a valid authentication token.
-- **403 Forbidden:** The authenticated user does not have the `manage meetings` permission.
+- **403 Forbidden:** The authenticated user does not have the `view meetings` permission.
 - **500 Internal Server Error:** A generic error indicating a problem on the server.

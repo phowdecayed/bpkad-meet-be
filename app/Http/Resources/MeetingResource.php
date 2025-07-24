@@ -3,6 +3,7 @@
 namespace App\Http\Resources;
 
 use App\Http\Resources\UserResource;
+use App\Models\Setting;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -16,6 +17,18 @@ class MeetingResource extends JsonResource
     public function toArray(Request $request): array
     {
         $user = $request->user();
+        $hostKey = null;
+
+        if (isset($this->host_key)) {
+            // This handles the case where the key is attached during creation
+            $hostKey = $this->host_key;
+        } elseif (in_array($this->type, ['online', 'hybrid'])) {
+            // This handles fetching the key for existing models
+            $zoomSetting = Setting::where('group', 'zoom')->first();
+            if ($zoomSetting && isset($zoomSetting->payload['host_key'])) {
+                $hostKey = $zoomSetting->payload['host_key'];
+            }
+        }
 
         return [
             'id' => $this->id,
@@ -26,11 +39,12 @@ class MeetingResource extends JsonResource
             'duration' => $this->duration,
             'type' => $this->type,
             'host_key' => $this->when(
-                isset($this->host_key) && $user && $user->can('viewHostKey', $this->resource),
-                $this->host_key
+                $hostKey && $user && $user->can('viewHostKey', $this->resource),
+                $hostKey
             ),
             'location' => new MeetingLocationResource($this->whenLoaded('location')),
             'zoom_meeting' => $this->whenLoaded('zoomMeeting'),
+            'participants' => UserResource::collection($this->whenLoaded('participants')),
         ];
     }
 }

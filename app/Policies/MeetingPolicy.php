@@ -13,7 +13,7 @@ class MeetingPolicy
      */
     public function viewAny(User $user): bool
     {
-        return $user->can('manage meetings');
+        return $user->can('view meetings');
     }
 
     /**
@@ -21,7 +21,9 @@ class MeetingPolicy
      */
     public function view(User $user, Meeting $meeting): bool
     {
-        return $user->can('manage meetings');
+        return $user->id === $meeting->organizer_id
+            || $user->can('view meetings')
+            || $meeting->participants->contains($user);
     }
 
     /**
@@ -29,7 +31,7 @@ class MeetingPolicy
      */
     public function create(User $user): bool
     {
-        return $user->can('manage meetings');
+        return $user->can('create meetings');
     }
 
     /**
@@ -37,7 +39,7 @@ class MeetingPolicy
      */
     public function update(User $user, Meeting $meeting): bool
     {
-        return $user->id === $meeting->organizer_id || $user->can('manage meetings');
+        return $user->id === $meeting->organizer_id || $user->can('edit meetings');
     }
 
     /**
@@ -49,11 +51,19 @@ class MeetingPolicy
     }
 
     /**
+     * Determine whether the user can manage participants for the model.
+     */
+    public function manageParticipants(User $user, Meeting $meeting): bool
+    {
+        return $user->id === $meeting->organizer_id || $user->can('edit meetings');
+    }
+
+    /**
      * Determine whether the user can view the host key for the model.
      */
     public function viewHostKey(User $user, Meeting $meeting): bool
     {
-        return $user->id === $meeting->organizer_id || $user->can('manage meetings');
+        return $user->id === $meeting->organizer_id || $user->can('edit meetings');
     }
 
     /**

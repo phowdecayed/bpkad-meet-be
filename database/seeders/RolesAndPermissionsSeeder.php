@@ -20,7 +20,9 @@ class RolesAndPermissionsSeeder extends Seeder
 
         // Define and create permissions
         $permissions = [
-            'manage meetings',
+            'view meetings',
+            'create meetings',
+            'edit meetings',
             'delete meetings',
             'manage users',
             'manage roles',
@@ -33,7 +35,7 @@ class RolesAndPermissionsSeeder extends Seeder
 
         // Create roles and assign permissions
         $userRole = Role::firstOrCreate(['name' => 'user', 'guard_name' => 'web']);
-        $userRole->syncPermissions(['manage meetings']);
+        $userRole->syncPermissions(['create meetings']);
 
         $adminRole = Role::firstOrCreate(['name' => 'admin', 'guard_name' => 'web']);
         $adminRole->syncPermissions($permissions);

@@ -3,15 +3,21 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\MeetingListItemResource;
 use App\Http\Resources\MeetingResource;
 use App\Http\Resources\PublicMeetingResource;
+use App\Http\Resources\UserResource;
 use App\Models\Meeting;
+use App\Models\User;
 use App\Services\MeetingService;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 
 class MeetingController extends Controller
 {
+    use AuthorizesRequests;
+    
     protected $meetingService;
 
     public function __construct(MeetingService $meetingService)
@@ -22,9 +28,23 @@ class MeetingController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        return MeetingResource::collection(Meeting::with(['organizer', 'location', 'zoomMeeting'])->latest()->paginate());
+        $user = $request->user();
+        $query = Meeting::query()->with(['organizer', 'location']);
+
+        // Check the policy to determine which meetings to show
+        if ($user->can('viewAny', Meeting::class)) {
+            // Admins can see all meetings
+        } else {
+            // Regular users can only see meetings they organize or are invited to
+            $query->where(function ($q) use ($user) {
+                $q->where('organizer_id', $user->id)
+                  ->orWhereHas('participants', fn($subQ) => $subQ->where('user_id', $user->id));
+            });
+        }
+
+        return MeetingListItemResource::collection($query->latest()->paginate());
     }
 
     /**
@@ -68,12 +88,13 @@ class MeetingController extends Controller
      */
     public function store(Request $request)
     {
+        $this->authorize('create', Meeting::class);
         $validated = $this->validateStoreRequest($request->all());
         $validated['organizer_id'] = auth()->id();
 
         $meeting = $this->meetingService->createMeeting($validated);
 
-        return (new MeetingResource($meeting->load(['organizer', 'location', 'zoomMeeting'])))
+        return (new MeetingResource($meeting->load(['organizer', 'location', 'zoomMeeting', 'participants'])))
             ->response()
             ->setStatusCode(201);
     }
@@ -99,6 +120,8 @@ class MeetingController extends Controller
             ],
             'password' => 'nullable|string|max:10', // Zoom password validation
             'settings' => 'nullable|array', // For Zoom settings
+            'participants' => 'nullable|array',
+            'participants.*' => 'integer|exists:users,id',
         ])->validate();
     }
 
@@ -107,7 +130,8 @@ class MeetingController extends Controller
      */
     public function show(Meeting $meeting)
     {
-        return new MeetingResource($meeting->load(['organizer', 'location', 'zoomMeeting']));
+        $this->authorize('view', $meeting);
+        return new MeetingResource($meeting->load(['organizer', 'location', 'zoomMeeting', 'participants']));
     }
 
     /**
@@ -140,5 +164,42 @@ class MeetingController extends Controller
         $updatedMeeting = $this->meetingService->updateMeeting($meeting, $validated);
 
         return new MeetingResource($updatedMeeting->load(['organizer', 'location', 'zoomMeeting']));
+    }
+
+    /**
+     * List participants for a meeting.
+     */
+    public function listParticipants(Meeting $meeting)
+    {
+        $this->authorize('view', $meeting);
+        return UserResource::collection($meeting->participants);
+    }
+
+    /**
+     * Invite a user to a meeting.
+     */
+    public function invite(Request $request, Meeting $meeting)
+    {
+        $this->authorize('manageParticipants', $meeting);
+
+        $validated = $request->validate([
+            'user_id' => 'required|exists:users,id',
+        ]);
+
+        $meeting->participants()->syncWithoutDetaching($validated['user_id']);
+
+        return response()->json(['message' => 'User invited successfully.']);
+    }
+
+    /**
+     * Remove a participant from a meeting.
+     */
+    public function removeParticipant(Meeting $meeting, User $user)
+    {
+        $this->authorize('manageParticipants', $meeting);
+
+        $meeting->participants()->detach($user->id);
+
+        return response()->json(['message' => 'Participant removed successfully.']);
     }
 }

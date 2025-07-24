@@ -16,21 +16,23 @@ class MeetingLocationControllerTest extends TestCase
     use RefreshDatabase, WithFaker;
 
     protected User $adminUser;
+    protected User $basicUser;
 
     protected function setUp(): void
     {
         parent::setUp();
 
         // Create a role and assign the necessary permission
-        $manageMeetingsPermission = Permission::create(['name' => 'manage meetings']);
-        $adminRole = Role::create(['name' => 'admin'])->givePermissionTo($manageMeetingsPermission);
+        $editMeetingsPermission = Permission::create(['name' => 'edit meetings']);
+        $adminRole = Role::create(['name' => 'admin'])->givePermissionTo($editMeetingsPermission);
+        $userRole = Role::create(['name' => 'user']);
 
         // Create a user and assign the role
         $this->adminUser = User::factory()->create();
         $this->adminUser->assignRole($adminRole);
 
-        // Authenticate the user for all tests in this class
-        $this->actingAs($this->adminUser);
+        $this->basicUser = User::factory()->create();
+        $this->basicUser->assignRole($userRole);
     }
 
     #[Test]
@@ -38,10 +40,17 @@ class MeetingLocationControllerTest extends TestCase
     {
         MeetingLocation::factory()->count(3)->create();
 
-        $response = $this->getJson('/api/meeting-locations');
+        $response = $this->actingAs($this->adminUser)->getJson('/api/meeting-locations');
 
         $response->assertOk()
             ->assertJsonCount(3, 'data');
+    }
+
+    #[Test]
+    public function non_admin_cannot_list_meeting_locations()
+    {
+        $response = $this->actingAs($this->basicUser)->getJson('/api/meeting-locations');
+        $response->assertStatus(403);
     }
 
     #[Test]
@@ -54,7 +63,7 @@ class MeetingLocationControllerTest extends TestCase
             'capacity' => $this->faker->numberBetween(10, 100),
         ];
 
-        $response = $this->postJson('/api/meeting-locations', $data);
+        $response = $this->actingAs($this->adminUser)->postJson('/api/meeting-locations', $data);
 
         $response->assertStatus(201)
             ->assertJsonFragment($data);
@@ -67,7 +76,7 @@ class MeetingLocationControllerTest extends TestCase
     {
         $location = MeetingLocation::factory()->create();
 
-        $response = $this->getJson("/api/meeting-locations/{$location->id}");
+        $response = $this->actingAs($this->adminUser)->getJson("/api/meeting-locations/{$location->id}");
 
         $response->assertOk()
             ->assertJsonFragment(['id' => $location->id]);
@@ -79,7 +88,7 @@ class MeetingLocationControllerTest extends TestCase
         $location = MeetingLocation::factory()->create();
         $updateData = ['name' => 'Updated Location Name'];
 
-        $response = $this->patchJson("/api/meeting-locations/{$location->id}", $updateData);
+        $response = $this->actingAs($this->adminUser)->patchJson("/api/meeting-locations/{$location->id}", $updateData);
 
         $response->assertOk()
             ->assertJsonFragment($updateData);
@@ -92,7 +101,7 @@ class MeetingLocationControllerTest extends TestCase
     {
         $location = MeetingLocation::factory()->create();
 
-        $response = $this->deleteJson("/api/meeting-locations/{$location->id}");
+        $response = $this->actingAs($this->adminUser)->deleteJson("/api/meeting-locations/{$location->id}");
 
         $response->assertStatus(200); // Should be 200 for successful deletion message
 

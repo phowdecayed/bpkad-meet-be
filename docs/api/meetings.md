@@ -6,7 +6,7 @@
 
 - **Method:** `GET`
 - **Endpoint:** `/api/calendar`
-- **Description:** Retrieves all meetings within a specific date range, suitable for a calendar view. **Requires `manage meetings` permission.**
+- **Description:** Retrieves all meetings within a specific date range, suitable for a calendar view. **Requires `view meetings` permission.**
 - **Headers:** `Authorization: Bearer <token>`
 - **Query Parameters:**
 | Parameter | Type | Validation | Description |
@@ -19,7 +19,7 @@
 
 - **Method:** `GET`
 - **Endpoint:** `/api/meetings`
-- **Description:** Retrieves a paginated list of all meetings. **Requires `manage meetings` permission.**
+- **Description:** Retrieves a paginated list of meetings. If the user has the `view meetings` permission, it returns all meetings. Otherwise, it returns only the meetings organized by the authenticated user.
 - **Headers:** `Authorization: Bearer <token>`
 - **Query Parameters:**
 | Parameter | Type | Description |
@@ -31,7 +31,7 @@
 
 - **Method:** `POST`
 - **Endpoint:** `/api/meetings`
-- **Description:** Creates a new meeting. **Requires `manage meetings` permission.**
+- **Description:** Creates a new meeting. **Requires `create meetings` permission.**
 - **Headers:** `Authorization: Bearer <token>`
 
 - **Payload Parameters:**
@@ -45,6 +45,7 @@
 | `location_id`| integer | required_if:type=offline,hybrid | The ID of a `MeetingLocation`. |
 | `password` | string | nullable, max:10 | The meeting password (for online/hybrid meetings). |
 | `settings` | object | nullable | An object of Zoom-specific settings. See Zoom API docs. |
+| `participants` | array | nullable | An array of user IDs to invite to the meeting. |
 
 - **Success Response (201):** Returns the newly created meeting object with its relations.
 
@@ -82,7 +83,7 @@
 
 - **Method:** `GET`
 - **Endpoint:** `/api/meetings/{id}`
-- **Description:** Retrieves a single meeting by its primary ID. **Requires `manage meetings` permission.**
+- **Description:** Retrieves a single meeting by its primary ID. Requires the user to be the meeting organizer or have the `view meetings` permission.
 - **Headers:** `Authorization: Bearer <token>`
 - **Success Response (200):** Returns the full meeting object with relations.
 
@@ -90,7 +91,7 @@
 
 - **Method:** `PUT` or `PATCH`
 - **Endpoint:** `/api/meetings/{id}`
-- **Description:** Updates a meeting's details. Requires the user to be the meeting organizer or have the `manage meetings` permission.
+- **Description:** Updates a meeting's details. Requires the user to be the meeting organizer or have the `edit meetings` permission.
 - **Headers:** `Authorization: Bearer <token>`
 
 - **Payload Parameters:** (All are optional)
@@ -118,12 +119,40 @@
   }
   ```
 
+### 6. List Participants
+
+- **Method:** `GET`
+- **Endpoint:** `/api/meetings/{id}/participants`
+- **Description:** Retrieves a list of all users invited to a specific meeting. Requires the user to be the meeting organizer or have the `view meetings` permission.
+- **Headers:** `Authorization: Bearer <token>`
+- **Success Response (200):** A collection of user objects.
+
+### 7. Invite Participant
+
+- **Method:** `POST`
+- **Endpoint:** `/api/meetings/{id}/invite`
+- **Description:** Invites a user to a meeting. Requires the user to be the meeting organizer or have the `edit meetings` permission.
+- **Headers:** `Authorization: Bearer <token>`
+- **Payload:**
+| Parameter | Type | Validation | Description |
+|---|---|---|---|
+| `user_id` | integer | required, exists:users,id | The ID of the user to invite. |
+- **Success Response (200):** `{"message": "User invited successfully."}`
+
+### 8. Remove Participant
+
+- **Method:** `DELETE`
+- **Endpoint:** `/api/meetings/{id}/participants/{userId}`
+- **Description:** Removes a participant from a meeting. Requires the user to be the meeting organizer or have the `edit meetings` permission.
+- **Headers:** `Authorization: Bearer <token>`
+- **Success Response (200):** `{"message": "Participant removed successfully."}`
+
 ---
 
 ## Common Error Responses
 
 - **401 Unauthorized:** The request is missing a valid authentication token.
-- **403 Forbidden:** The authenticated user does not have the required permissions (`manage meetings` or `delete meetings`).
+- **403 Forbidden:** The authenticated user does not have the required permissions.
 - **404 Not Found:** The requested meeting does not exist.
 - **422 Unprocessable Entity:** The request payload contains validation errors (e.g., a required field is missing, `start_date` is after `end_date`).
 - **500 Internal Server Error:** A generic error indicating a problem on the server.

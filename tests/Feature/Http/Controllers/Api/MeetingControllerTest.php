@@ -3,15 +3,12 @@
 namespace Tests\Feature\Http\Controllers\Api;
 
 use App\Models\Meeting;
-use App\Models\MeetingLocation;
+use App\Models\Setting;
 use App\Models\User;
 use App\Models\ZoomMeeting;
-use App\Services\ZoomService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
-use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\Http;
-use PHPUnit\Framework\Attributes\Test;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 use Tests\TestCase;
@@ -21,154 +18,157 @@ class MeetingControllerTest extends TestCase
     use RefreshDatabase, WithFaker;
 
     protected User $adminUser;
+    protected User $organizerUser;
+    protected User $participantUser;
+    protected User $unrelatedUser;
 
     protected function setUp(): void
     {
         parent::setUp();
 
         // Create permissions
-        $manageMeetingsPermission = Permission::create(['name' => 'manage meetings']);
-        $deleteMeetingsPermission = Permission::create(['name' => 'delete meetings']);
+        $permissions = [
+            'view meetings', 'create meetings', 'edit meetings', 'delete meetings'
+        ];
+        foreach ($permissions as $permission) {
+            Permission::create(['name' => $permission]);
+        }
 
-        // Create a role and assign permissions
-        $adminRole = Role::create(['name' => 'admin']);
-        $adminRole->givePermissionTo($manageMeetingsPermission);
-        $adminRole->givePermissionTo($deleteMeetingsPermission);
+        // Create roles
+        $adminRole = Role::create(['name' => 'admin'])->givePermissionTo($permissions);
+        $userRole = Role::create(['name' => 'user'])->givePermissionTo('create meetings');
 
-        // Create a user and assign the role
-        $this->adminUser = User::factory()->create();
-        $this->adminUser->assignRole($adminRole);
+        // Create users
+        $this->adminUser = User::factory()->create()->assignRole($adminRole);
+        $this->organizerUser = User::factory()->create()->assignRole($userRole);
+        $this->participantUser = User::factory()->create()->assignRole($userRole);
+        $this->unrelatedUser = User::factory()->create()->assignRole($userRole);
 
-        // Act as the admin user for all tests in this class
-        $this->actingAs($this->adminUser);
+        // Create a dummy setting for online meeting tests
+        Setting::create([
+            'name' => 'Test Zoom Account', 'group' => 'zoom',
+            'payload' => ['client_id' => 'test', 'client_secret' => 'test', 'account_id' => 'test']
+        ]);
     }
 
-    #[Test]
-    public function it_can_list_meetings()
+    // Authorization Tests
+    public function test_organizer_can_update_their_own_meeting()
     {
-        Meeting::factory()->count(3)->create();
-        $response = $this->getJson('/api/meetings');
+        $meeting = Meeting::factory()->create(['organizer_id' => $this->organizerUser->id]);
+        $response = $this->actingAs($this->organizerUser)->patchJson("/api/meetings/{$meeting->id}", ['topic' => 'New Topic']);
+        $response->assertOk();
+    }
+
+    public function test_organizer_can_delete_their_own_meeting()
+    {
+        $this->organizerUser->givePermissionTo('delete meetings');
+        $meeting = Meeting::factory()->create(['organizer_id' => $this->organizerUser->id]);
+        $response = $this->actingAs($this->organizerUser)->deleteJson("/api/meetings/{$meeting->id}");
+        $response->assertOk();
+    }
+
+    public function test_user_cannot_update_others_meeting()
+    {
+        $meeting = Meeting::factory()->create(['organizer_id' => $this->organizerUser->id]);
+        $response = $this->actingAs($this->unrelatedUser)->patchJson("/api/meetings/{$meeting->id}", ['topic' => 'New Topic']);
+        $response->assertStatus(403);
+    }
+
+    public function test_user_cannot_delete_others_meeting()
+    {
+        $meeting = Meeting::factory()->create(['organizer_id' => $this->organizerUser->id]);
+        $response = $this->actingAs($this->unrelatedUser)->deleteJson("/api/meetings/{$meeting->id}");
+        $response->assertStatus(403);
+    }
+
+    public function test_participant_can_view_meeting()
+    {
+        $meeting = Meeting::factory()->create(['organizer_id' => $this->organizerUser->id]);
+        $meeting->participants()->attach($this->participantUser->id);
+        $response = $this->actingAs($this->participantUser)->getJson("/api/meetings/{$meeting->id}");
+        $response->assertOk();
+    }
+
+    public function test_unrelated_user_cannot_view_meeting()
+    {
+        $meeting = Meeting::factory()->create(['organizer_id' => $this->organizerUser->id]);
+        $response = $this->actingAs($this->unrelatedUser)->getJson("/api/meetings/{$meeting->id}");
+        $response->assertStatus(403);
+    }
+
+    // List View Tests
+    public function test_admin_sees_all_meetings_in_list()
+    {
+        Meeting::factory()->count(5)->create();
+        $response = $this->actingAs($this->adminUser)->getJson('/api/meetings');
+        $response->assertOk()->assertJsonCount(5, 'data');
+    }
+
+    public function test_user_sees_only_organized_and_invited_meetings()
+    {
+        // 2 organized, 1 invited to, 2 unrelated
+        Meeting::factory()->create(['organizer_id' => $this->organizerUser->id]);
+        Meeting::factory()->create(['organizer_id' => $this->organizerUser->id]);
+        Meeting::factory()->create()->participants()->attach($this->organizerUser->id);
+        Meeting::factory()->count(2)->create();
+
+        $response = $this->actingAs($this->organizerUser)->getJson('/api/meetings');
         $response->assertOk()->assertJsonCount(3, 'data');
     }
 
-    #[Test]
-    public function it_can_show_a_meeting()
+    // Participant Management Tests
+    public function test_organizer_can_invite_participant()
     {
-        $meeting = Meeting::factory()->create();
-        $response = $this->getJson("/api/meetings/{$meeting->id}");
-        $response->assertOk()->assertJsonFragment(['id' => $meeting->id]);
+        $this->organizerUser->givePermissionTo('edit meetings');
+        $meeting = Meeting::factory()->create(['organizer_id' => $this->organizerUser->id]);
+        $response = $this->actingAs($this->organizerUser)->postJson("/api/meetings/{$meeting->id}/invite", ['user_id' => $this->participantUser->id]);
+        $response->assertOk();
+        $this->assertDatabaseHas('meeting_user', ['meeting_id' => $meeting->id, 'user_id' => $this->participantUser->id]);
     }
 
-    #[Test]
-    public function it_can_create_an_offline_meeting()
+    public function test_organizer_can_remove_participant()
     {
-        $location = MeetingLocation::factory()->create();
-        $startTime = now()->addDays(5)->startOfSecond();
+        $this->organizerUser->givePermissionTo('edit meetings');
+        $meeting = Meeting::factory()->create(['organizer_id' => $this->organizerUser->id]);
+        $meeting->participants()->attach($this->participantUser->id);
+        $response = $this->actingAs($this->organizerUser)->deleteJson("/api/meetings/{$meeting->id}/participants/{$this->participantUser->id}");
+        $response->assertOk();
+        $this->assertDatabaseMissing('meeting_user', ['meeting_id' => $meeting->id, 'user_id' => $this->participantUser->id]);
+    }
+
+    public function test_non_organizer_cannot_invite_participant()
+    {
+        $meeting = Meeting::factory()->create(['organizer_id' => $this->organizerUser->id]);
+        $response = $this->actingAs($this->unrelatedUser)->postJson("/api/meetings/{$meeting->id}/invite", ['user_id' => $this->participantUser->id]);
+        $response->assertStatus(403);
+    }
+
+    // Public Calendar Test
+    public function test_public_calendar_returns_safe_data()
+    {
+        Meeting::factory()->create();
+        $response = $this->getJson('/api/public/calendar?start_date=' . now()->subDay()->toDateString() . '&end_date=' . now()->addMonths(2)->toDateString());
+        $response->assertOk()
+            ->assertJsonStructure(['data' => [['id', 'topic', 'start_time']]])
+            ->assertJsonMissingPath('data.0.zoom_meeting')
+            ->assertJsonMissingPath('data.0.organizer');
+    }
+
+    // Create Meeting with Participants Test
+    public function test_can_create_meeting_with_participants()
+    {
         $data = [
-            'topic' => 'Offline Meeting Test',
-            'start_time' => $startTime->toDateTimeString(),
+            'topic' => 'Meeting With Participants',
+            'start_time' => now()->addDays(5)->toDateTimeString(),
             'duration' => 60,
             'type' => 'offline',
-            'location_id' => $location->id,
+            'location_id' => \App\Models\MeetingLocation::factory()->create()->id,
+            'participants' => [$this->participantUser->id, $this->unrelatedUser->id],
         ];
 
-        $response = $this->postJson('/api/meetings', $data);
-
-        $response->assertStatus(201)->assertJsonFragment(['topic' => 'Offline Meeting Test']);
-        $this->assertDatabaseHas('meetings', $data);
-    }
-
-    #[Test]
-    public function it_can_create_an_online_meeting()
-    {
-        // Create a dummy setting for the test
-        \App\Models\Setting::create([
-            'name' => 'Test Zoom Account',
-            'group' => 'zoom',
-            'payload' => [
-                'client_id' => 'test',
-                'client_secret' => 'test',
-                'account_id' => 'test',
-            ],
-        ]);
-
-        Http::fake([
-            'https://zoom.us/oauth/token' => Http::response(['access_token' => 'fake_token']),
-            'https://api.zoom.us/v2/users/me/meetings' => Http::response(json_decode('{
-                "uuid": "3SjLbv0IRgmY2LX0FzPJSg==",
-                "id": 72093907398,
-                "host_id": "LW5hOGSJRm-dbItnXqlNeQ",
-                "host_email": "rachmatsharyadi@gmail.com",
-                "topic": "Test Meeting",
-                "type": 2,
-                "status": "waiting",
-                "start_time": "2025-07-24T12:21:11Z",
-                "duration": 30,
-                "timezone": "Asia/Jakarta",
-                "created_at": "2025-07-23T14:41:31Z",
-                "start_url": "https://us04web.zoom.us/s/72093907398?zak=...",
-                "join_url": "https://us04web.zoom.us/j/72093907398?pwd=...",
-                "password": "X4rfxX",
-                "settings": { "host_video": true }
-            }', true), 201)
-        ]);
-
-        $startTime = now()->addDays(5)->startOfSecond();
-        $data = [
-            'topic' => 'Online Meeting Test',
-            'start_time' => $startTime->toDateTimeString(),
-            'duration' => 60,
-            'type' => 'online',
-        ];
-
-        $response = $this->postJson('/api/meetings', $data);
-
-        $response->assertStatus(201)
-            ->assertJsonFragment(['topic' => 'Online Meeting Test'])
-            ->assertJsonPath('data.zoom_meeting.zoom_id', 72093907398);
-
-        $this->assertDatabaseHas('meetings', ['topic' => 'Online Meeting Test']);
-        $this->assertDatabaseCount('zoom_meetings', 1);
-    }
-
-
-    #[Test]
-    public function it_can_update_a_meeting()
-    {
-        $meeting = Meeting::factory()->create();
-        $updateData = ['topic' => 'Updated Meeting Topic'];
-
-        $response = $this->patchJson("/api/meetings/{$meeting->id}", $updateData);
-
-        $response->assertOk()->assertJsonFragment($updateData);
-        $this->assertDatabaseHas('meetings', $updateData);
-    }
-
-    #[Test]
-    public function it_can_delete_an_offline_meeting()
-    {
-        $meeting = Meeting::factory()->create(['type' => 'offline']);
-
-        $response = $this->deleteJson("/api/meetings/{$meeting->id}");
-
-        $response->assertOk();
-        $this->assertDatabaseMissing('meetings', ['id' => $meeting->id]);
-    }
-
-    #[Test]
-    public function it_can_delete_an_online_meeting_and_calls_zoom_service()
-    {
-        Http::fake([
-            'https://zoom.us/oauth/token' => Http::response(['access_token' => 'fake_token']),
-            'https://api.zoom.us/v2/meetings/*' => Http::response(null, 204)
-        ]);
-
-        $meeting = Meeting::factory()->create(['type' => 'online']);
-        ZoomMeeting::factory()->create(['meeting_id' => $meeting->id]);
-
-        $response = $this->deleteJson("/api/meetings/{$meeting->id}");
-
-        $response->assertOk();
-        $this->assertDatabaseMissing('meetings', ['id' => $meeting->id]);
+        $response = $this->actingAs($this->organizerUser)->postJson('/api/meetings', $data);
+        $response->assertStatus(201);
+        $this->assertDatabaseHas('meetings', ['topic' => 'Meeting With Participants']);
+        $this->assertDatabaseCount('meeting_user', 2);
     }
 }

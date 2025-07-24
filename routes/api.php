@@ -31,15 +31,18 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
 
     // Core Meeting Management
-    Route::get('/calendar', [MeetingController::class, 'calendar'])->middleware('permission:manage meetings');
+    Route::get('/calendar', [MeetingController::class, 'calendar'])->middleware('permission:view meetings');
     Route::apiResource('meetings', MeetingController::class)->except(['destroy'])
-        ->middleware('permission:manage meetings');
+        ->middleware('permission:create meetings|edit meetings');
     Route::delete('/meetings/{meeting}', [MeetingController::class, 'destroy'])
         ->middleware('permission:delete meetings');
-    Route::apiResource('meeting-locations', MeetingLocationController::class)->middleware('permission:manage meetings');
+    Route::get('/meetings/{meeting}/participants', [MeetingController::class, 'listParticipants'])->middleware('permission:view meetings');
+    Route::post('/meetings/{meeting}/invite', [MeetingController::class, 'invite'])->middleware('permission:edit meetings');
+    Route::delete('/meetings/{meeting}/participants/{user}', [MeetingController::class, 'removeParticipant'])->middleware('permission:edit meetings');
+    Route::apiResource('meeting-locations', MeetingLocationController::class)->middleware('permission:edit meetings');
 
     // Zoom Specific Routes
-    Route::prefix('zoom')->middleware('permission:manage meetings')->group(function () {
+    Route::prefix('zoom')->middleware('permission:edit meetings')->group(function () {
         Route::post('/auth', [ZoomController::class, 'authenticate']);
         Route::post('/meetings', [ZoomController::class, 'createMeeting']);
         Route::patch('/meetings', [ZoomController::class, 'updateMeeting']);

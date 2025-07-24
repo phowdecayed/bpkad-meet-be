@@ -39,7 +39,12 @@ class MeetingService
                 'location_id' => $data['location_id'] ?? null,
             ]);
 
-            // 2. If the meeting is online or hybrid, create a Zoom meeting
+            // 3. If participants are included, attach them to the meeting
+            if (!empty($data['participants'])) {
+                $meeting->participants()->sync($data['participants']);
+            }
+
+            // 4. If the meeting is online or hybrid, create a Zoom meeting
             if (in_array($data['type'], ['online', 'hybrid'])) {
                 // Find the first available zoom credentials from settings
                 $zoomSetting = Setting::where('group', 'zoom')->first();
