@@ -8,6 +8,7 @@ use Illuminate\Foundation\Testing\WithFaker;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 use Tests\TestCase;
+use PHPUnit\Framework\Attributes\Test;
 
 class StatisticControllerTest extends TestCase
 {
@@ -20,11 +21,10 @@ class StatisticControllerTest extends TestCase
     {
         parent::setUp();
 
-        // Create permissions
-        $manageMeetingsPermission = Permission::create(['name' => 'manage meetings']);
+        $viewMeetingsPermission = Permission::create(['name' => 'view meetings']);
 
         // Create roles
-        $adminRole = Role::create(['name' => 'admin'])->givePermissionTo($manageMeetingsPermission);
+        $adminRole = Role::create(['name' => 'admin'])->givePermissionTo($viewMeetingsPermission);
         $userRole = Role::create(['name' => 'user']);
 
         // Create users
@@ -35,7 +35,8 @@ class StatisticControllerTest extends TestCase
         $this->basicUser->assignRole($userRole);
     }
 
-    public function test_admin_can_view_statistics()
+    #[Test]
+    public function admin_can_view_statistics()
     {
         $response = $this->actingAs($this->adminUser)->getJson('/api/statistics/dashboard');
         $response->assertOk()
@@ -44,11 +45,13 @@ class StatisticControllerTest extends TestCase
                     'overview' => ['total_meetings', 'average_duration_minutes', 'meetings_this_month'],
                     'meeting_trends' => ['by_type'],
                     'leaderboards' => ['top_organizers', 'top_locations'],
+                    'charts' => ['meetings_by_month'],
                 ]
             ]);
     }
 
-    public function test_non_admin_cannot_view_statistics()
+    #[Test]
+    public function non_admin_cannot_view_statistics()
     {
         $response = $this->actingAs($this->basicUser)->getJson('/api/statistics/dashboard');
         $response->assertStatus(403);

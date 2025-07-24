@@ -13,9 +13,11 @@ use App\Http\Controllers\Api\PermissionController;
 use App\Http\Controllers\Api\SettingController;
 use App\Http\Controllers\Api\StatisticController;
 
+use App\Http\Controllers\ResetPasswordController;
+
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/forgot-password', [AuthController::class, 'forgotPassword'])->name('password.email');
-Route::post('/reset-password', [AuthController::class, 'resetPassword'])->name('password.reset');
+Route::post('/reset-password', [ResetPasswordController::class, 'reset'])->name('password.update');
 
 // Email Verification - This route is public as it's accessed from the email link
 Route::get('/email/verify/{id}/{hash}', [VerificationController::class, 'verify'])
@@ -67,7 +69,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('settings', SettingController::class)->middleware('permission:manage settings');
 
     // Statistics
-    Route::get('/statistics/dashboard', StatisticController::class)->middleware('permission:manage meetings');
+    Route::get('/statistics/dashboard', StatisticController::class)->middleware('permission:view meetings');
 
 
     // Resend Verification Email

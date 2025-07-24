@@ -44,6 +44,30 @@ class StatisticController extends Controller
                     'meetings_count' => $location->meetings_count,
                 ]);
 
+            $dbDriver = config('database.connections.' . config('database.default') . '.driver');
+
+            $yearMonthSelect = ($dbDriver === 'sqlite')
+                ? "strftime('%Y', start_time) as year, strftime('%m', start_time) as month"
+                : "YEAR(start_time) as year, MONTH(start_time) as month";
+
+
+            $meetingsByMonth = Meeting::select(
+                DB::raw($yearMonthSelect),
+                DB::raw('count(*) as count')
+            )
+                ->where('start_time', '>=', now()->subYear())
+                ->groupBy('year', 'month')
+                ->orderBy('year', 'asc')
+                ->orderBy('month', 'asc')
+                ->get()
+                ->map(function ($item) {
+                    return [
+                        'month' => date('F', mktime(0, 0, 0, $item->month, 1)),
+                        'year' => $item->year,
+                        'count' => $item->count,
+                    ];
+                });
+
             return [
                 'overview' => [
                     'total_meetings' => $totalMeetings,
@@ -57,6 +81,9 @@ class StatisticController extends Controller
                     'top_organizers' => $topOrganizers,
                     'top_locations' => $topLocations,
                 ],
+                'charts' => [
+                    'meetings_by_month' => $meetingsByMonth,
+                ]
             ];
         });
 

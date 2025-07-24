@@ -7,6 +7,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 use Tests\TestCase;
+use PHPUnit\Framework\Attributes\Test;
 
 class AuthTest extends TestCase
 {
@@ -23,7 +24,8 @@ class AuthTest extends TestCase
     }
 
 
-    public function test_admin_can_register_new_user()
+    #[Test]
+    public function admin_can_register_new_user()
     {
         $admin = User::factory()->create();
         $admin->assignRole('admin');
@@ -50,7 +52,8 @@ class AuthTest extends TestCase
         ]);
     }
 
-    public function test_user_can_login()
+    #[Test]
+    public function user_can_login()
     {
         $user = User::factory()->create([
             'password' => bcrypt('password'),
@@ -68,7 +71,8 @@ class AuthTest extends TestCase
             ]);
     }
 
-    public function test_user_cannot_login_with_invalid_credentials()
+    #[Test]
+    public function user_cannot_login_with_invalid_credentials()
     {
         $user = User::factory()->create([
             'password' => bcrypt('password'),

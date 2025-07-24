@@ -6,12 +6,14 @@ use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Hash;
 use Tests\TestCase;
+use PHPUnit\Framework\Attributes\Test;
 
 class UserControllerTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_user_can_change_their_name()
+    #[Test]
+    public function user_can_change_their_name()
     {
         $user = User::factory()->create();
 
@@ -26,7 +28,8 @@ class UserControllerTest extends TestCase
         ]);
     }
 
-    public function test_user_can_change_their_email()
+    #[Test]
+    public function user_can_change_their_email()
     {
         $user = User::factory()->create();
 
@@ -41,7 +44,8 @@ class UserControllerTest extends TestCase
         ]);
     }
 
-    public function test_user_can_change_their_password()
+    #[Test]
+    public function user_can_change_their_password()
     {
         $user = User::factory()->create([
             'password' => Hash::make('old-password'),
@@ -57,7 +61,8 @@ class UserControllerTest extends TestCase
         $this->assertTrue(Hash::check('new-password', $user->fresh()->password));
     }
 
-    public function test_user_cannot_change_password_with_incorrect_current_password()
+    #[Test]
+    public function user_cannot_change_password_with_incorrect_current_password()
     {
         $user = User::factory()->create([
             'password' => Hash::make('old-password'),

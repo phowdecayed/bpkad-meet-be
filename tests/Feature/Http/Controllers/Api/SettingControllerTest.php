@@ -9,6 +9,7 @@ use Illuminate\Foundation\Testing\WithFaker;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 use Tests\TestCase;
+use PHPUnit\Framework\Attributes\Test;
 
 class SettingControllerTest extends TestCase
 {
@@ -36,20 +37,23 @@ class SettingControllerTest extends TestCase
         $this->basicUser->assignRole($userRole);
     }
 
-    public function test_admin_can_list_settings()
+    #[Test]
+    public function admin_can_list_settings()
     {
         Setting::factory()->count(3)->create();
         $response = $this->actingAs($this->adminUser)->getJson('/api/settings');
         $response->assertOk()->assertJsonCount(3);
     }
 
-    public function test_non_admin_cannot_list_settings()
+    #[Test]
+    public function non_admin_cannot_list_settings()
     {
         $response = $this->actingAs($this->basicUser)->getJson('/api/settings');
         $response->assertStatus(403);
     }
 
-    public function test_admin_can_create_a_setting()
+    #[Test]
+    public function admin_can_create_a_setting()
     {
         $data = [
             'name' => 'Test Setting',
@@ -65,7 +69,8 @@ class SettingControllerTest extends TestCase
         ]);
     }
 
-    public function test_admin_can_update_a_setting()
+    #[Test]
+    public function admin_can_update_a_setting()
     {
         $setting = Setting::factory()->create();
         $updateData = ['name' => 'Updated Name'];
@@ -74,7 +79,8 @@ class SettingControllerTest extends TestCase
         $this->assertDatabaseHas('settings', $updateData);
     }
 
-    public function test_admin_can_delete_a_setting()
+    #[Test]
+    public function admin_can_delete_a_setting()
     {
         $setting = Setting::factory()->create();
         $response = $this->actingAs($this->adminUser)->deleteJson("/api/settings/{$setting->id}");

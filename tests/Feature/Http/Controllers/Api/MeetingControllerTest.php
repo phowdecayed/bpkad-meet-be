@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Http;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 use Tests\TestCase;
+use PHPUnit\Framework\Attributes\Test;
 
 class MeetingControllerTest extends TestCase
 {
@@ -52,14 +53,16 @@ class MeetingControllerTest extends TestCase
     }
 
     // Authorization Tests
-    public function test_organizer_can_update_their_own_meeting()
+    #[Test]
+    public function organizer_can_update_their_own_meeting()
     {
         $meeting = Meeting::factory()->create(['organizer_id' => $this->organizerUser->id]);
         $response = $this->actingAs($this->organizerUser)->patchJson("/api/meetings/{$meeting->id}", ['topic' => 'New Topic']);
         $response->assertOk();
     }
 
-    public function test_organizer_can_delete_their_own_meeting()
+    #[Test]
+    public function organizer_can_delete_their_own_meeting()
     {
         $this->organizerUser->givePermissionTo('delete meetings');
         $meeting = Meeting::factory()->create(['organizer_id' => $this->organizerUser->id]);
@@ -67,21 +70,24 @@ class MeetingControllerTest extends TestCase
         $response->assertOk();
     }
 
-    public function test_user_cannot_update_others_meeting()
+    #[Test]
+    public function user_cannot_update_others_meeting()
     {
         $meeting = Meeting::factory()->create(['organizer_id' => $this->organizerUser->id]);
         $response = $this->actingAs($this->unrelatedUser)->patchJson("/api/meetings/{$meeting->id}", ['topic' => 'New Topic']);
         $response->assertStatus(403);
     }
 
-    public function test_user_cannot_delete_others_meeting()
+    #[Test]
+    public function user_cannot_delete_others_meeting()
     {
         $meeting = Meeting::factory()->create(['organizer_id' => $this->organizerUser->id]);
         $response = $this->actingAs($this->unrelatedUser)->deleteJson("/api/meetings/{$meeting->id}");
         $response->assertStatus(403);
     }
 
-    public function test_participant_can_view_meeting()
+    #[Test]
+    public function participant_can_view_meeting()
     {
         $meeting = Meeting::factory()->create(['organizer_id' => $this->organizerUser->id]);
         $meeting->participants()->attach($this->participantUser->id);
@@ -89,7 +95,8 @@ class MeetingControllerTest extends TestCase
         $response->assertOk();
     }
 
-    public function test_unrelated_user_cannot_view_meeting()
+    #[Test]
+    public function unrelated_user_cannot_view_meeting()
     {
         $meeting = Meeting::factory()->create(['organizer_id' => $this->organizerUser->id]);
         $response = $this->actingAs($this->unrelatedUser)->getJson("/api/meetings/{$meeting->id}");
@@ -97,14 +104,16 @@ class MeetingControllerTest extends TestCase
     }
 
     // List View Tests
-    public function test_admin_sees_all_meetings_in_list()
+    #[Test]
+    public function admin_sees_all_meetings_in_list()
     {
         Meeting::factory()->count(5)->create();
         $response = $this->actingAs($this->adminUser)->getJson('/api/meetings');
         $response->assertOk()->assertJsonCount(5, 'data');
     }
 
-    public function test_user_sees_only_organized_and_invited_meetings()
+    #[Test]
+    public function user_sees_only_organized_and_invited_meetings()
     {
         // 2 organized, 1 invited to, 2 unrelated
         Meeting::factory()->create(['organizer_id' => $this->organizerUser->id]);
@@ -117,7 +126,8 @@ class MeetingControllerTest extends TestCase
     }
 
     // Participant Management Tests
-    public function test_organizer_can_invite_participant()
+    #[Test]
+    public function organizer_can_invite_participant()
     {
         $this->organizerUser->givePermissionTo('edit meetings');
         $meeting = Meeting::factory()->create(['organizer_id' => $this->organizerUser->id]);
@@ -126,7 +136,8 @@ class MeetingControllerTest extends TestCase
         $this->assertDatabaseHas('meeting_user', ['meeting_id' => $meeting->id, 'user_id' => $this->participantUser->id]);
     }
 
-    public function test_organizer_can_remove_participant()
+    #[Test]
+    public function organizer_can_remove_participant()
     {
         $this->organizerUser->givePermissionTo('edit meetings');
         $meeting = Meeting::factory()->create(['organizer_id' => $this->organizerUser->id]);
@@ -136,7 +147,8 @@ class MeetingControllerTest extends TestCase
         $this->assertDatabaseMissing('meeting_user', ['meeting_id' => $meeting->id, 'user_id' => $this->participantUser->id]);
     }
 
-    public function test_non_organizer_cannot_invite_participant()
+    #[Test]
+    public function non_organizer_cannot_invite_participant()
     {
         $meeting = Meeting::factory()->create(['organizer_id' => $this->organizerUser->id]);
         $response = $this->actingAs($this->unrelatedUser)->postJson("/api/meetings/{$meeting->id}/invite", ['user_id' => $this->participantUser->id]);
@@ -144,7 +156,8 @@ class MeetingControllerTest extends TestCase
     }
 
     // Public Calendar Test
-    public function test_public_calendar_returns_safe_data()
+    #[Test]
+    public function public_calendar_returns_safe_data()
     {
         Meeting::factory()->create();
         $response = $this->getJson('/api/public/calendar?start_date=' . now()->subDay()->toDateString() . '&end_date=' . now()->addMonths(2)->toDateString());
@@ -155,7 +168,8 @@ class MeetingControllerTest extends TestCase
     }
 
     // Create Meeting with Participants Test
-    public function test_can_create_meeting_with_participants()
+    #[Test]
+    public function can_create_meeting_with_participants()
     {
         $data = [
             'topic' => 'Meeting With Participants',

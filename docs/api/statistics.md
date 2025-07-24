@@ -33,6 +33,12 @@
           { "name": "Main Office - Conference Room A", "meetings_count": 67 },
           { "name": "Branch Office - Room B", "meetings_count": 21 }
         ]
+      },
+      "charts": {
+        "meetings_by_month": [
+          { "month": "January", "year": 2024, "count": 15 },
+          { "month": "February", "year": 2024, "count": 20 }
+        ]
       }
     }
   }
