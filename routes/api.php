@@ -11,6 +11,7 @@ use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\RoleController;
 use App\Http\Controllers\Api\PermissionController;
 use App\Http\Controllers\Api\SettingController;
+use App\Http\Controllers\Api\StatisticController;
 
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/forgot-password', [AuthController::class, 'forgotPassword'])->name('password.email');
@@ -58,6 +59,9 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Application Settings Management
     Route::apiResource('settings', SettingController::class)->middleware('permission:manage settings');
+
+    // Statistics
+    Route::get('/statistics/dashboard', StatisticController::class)->middleware('permission:manage meetings');
 
 
     // Resend Verification Email

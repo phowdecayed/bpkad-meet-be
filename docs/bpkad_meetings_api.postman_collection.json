@@ -578,7 +578,16 @@
                     "name": "List Settings",
                     "request": {
                         "method": "GET",
-                        "header": [],
+                        "header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
                         "url": {
                             "raw": "{{base_url}}/api/settings",
                             "host": [
@@ -596,7 +605,16 @@
                     "name": "Create Zoom Setting",
                     "request": {
                         "method": "POST",
-                        "header": [],
+                        "header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
                         "body": {
                             "mode": "raw",
                             "raw": "{\n    \"name\": \"Default Zoom Account\",\n    \"group\": \"zoom\",\n    \"payload\": {\n        \"client_id\": \"YOUR_ZOOM_CLIENT_ID\",\n        \"client_secret\": \"YOUR_ZOOM_CLIENT_SECRET\",\n        \"account_id\": \"YOUR_ZOOM_ACCOUNT_ID\",\n        \"host_key\": \"YOUR_ZOOM_HOST_KEY\"\n    }\n}",
@@ -623,7 +641,16 @@
                     "name": "Get Setting",
                     "request": {
                         "method": "GET",
-                        "header": [],
+                        "header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
                         "url": {
                             "raw": "{{base_url}}/api/settings/1",
                             "host": [
@@ -642,7 +669,16 @@
                     "name": "Update Setting",
                     "request": {
                         "method": "PATCH",
-                        "header": [],
+                        "header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
                         "body": {
                             "mode": "raw",
                             "raw": "{\n    \"payload\": {\n        \"client_id\": \"UPDATED_CLIENT_ID\"\n    }\n}",
@@ -670,7 +706,16 @@
                     "name": "Delete Setting",
                     "request": {
                         "method": "DELETE",
-                        "header": [],
+                        "header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
                         "url": {
                             "raw": "{{base_url}}/api/settings/1",
                             "host": [
@@ -687,6 +732,39 @@
                 }
             ]
         },
+        {
+            "name": "Statistics",
+            "item": [
+                {
+                    "name": "Get Dashboard Statistics",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+                        "url": {
+                            "raw": "{{base_url}}/api/statistics/dashboard",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "statistics",
+                                "dashboard"
+                            ]
+                        }
+                    },
+                    "response": []
+                }
+            ]
+        }
         {
             "name": "Meeting Locations",
             "item": [
