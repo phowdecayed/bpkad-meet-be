@@ -59,3 +59,13 @@
 - **Description:** Deletes a meeting location.
 - **Headers:** `Authorization: Bearer <token>`
 - **Success Response (204):** No content.
+
+---
+
+## Common Error Responses
+
+- **401 Unauthorized:** The request is missing a valid authentication token.
+- **403 Forbidden:** The authenticated user does not have the `manage meetings` permission.
+- **404 Not Found:** The requested meeting location does not exist.
+- **422 Unprocessable Entity:** The request payload contains validation errors.
+- **500 Internal Server Error:** A generic error indicating a problem on the server.

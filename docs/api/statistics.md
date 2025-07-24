@@ -35,3 +35,11 @@
     }
   }
   ```
+
+---
+
+## Common Error Responses
+
+- **401 Unauthorized:** The request is missing a valid authentication token.
+- **403 Forbidden:** The authenticated user does not have the `manage meetings` permission.
+- **500 Internal Server Error:** A generic error indicating a problem on the server.

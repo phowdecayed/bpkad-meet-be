@@ -81,3 +81,13 @@ Endpoints for administrators to manage roles and permissions.
 - **Description:** Deletes a specific role. **Requires `manage roles` permission.**
 - **Headers:** `Authorization: Bearer <token>`
 - **Success Response (200):** `{"message": "Role deleted successfully."}`
+
+---
+
+## Common Error Responses
+
+- **401 Unauthorized:** The request is missing a valid authentication token.
+- **403 Forbidden:** The authenticated user does not have the `manage roles` permission.
+- **404 Not Found:** The requested role or permission does not exist.
+- **422 Unprocessable Entity:** The request payload contains validation errors (e.g., the role name already exists).
+- **500 Internal Server Error:** A generic error indicating a problem on the server.

@@ -84,3 +84,12 @@
 - **Description:** Retrieves details for a past meeting instance.
 - **Headers:** `Authorization: Bearer <token>`
 - **Success Response (200):** Returns the raw JSON from the Zoom API.
+
+---
+
+## Common Error Responses
+
+- **401 Unauthorized:** The request is missing a valid authentication token.
+- **403 Forbidden:** The authenticated user does not have the `manage meetings` permission.
+- **422 Unprocessable Entity:** The request payload contains validation errors or the Zoom API returns an error.
+- **500 Internal Server Error:** A generic error indicating a problem on the server.

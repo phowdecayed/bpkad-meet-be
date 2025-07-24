@@ -36,3 +36,11 @@ Endpoints for authenticated users to manage their own profile.
 | `password` | string | required, min:8, confirmed | The new password. |
 | `password_confirmation` | string | required | Confirmation of the new password. |
 - **Success Response (200):** `{"message": "Password updated successfully."}`
+
+---
+
+## Common Error Responses
+
+- **401 Unauthorized:** The request is missing a valid authentication token.
+- **422 Unprocessable Entity:** The request payload contains validation errors (e.g., the `current_password` is incorrect).
+- **500 Internal Server Error:** A generic error indicating a problem on the server.

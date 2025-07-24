@@ -166,3 +166,12 @@ This section covers endpoints for user registration, login, and general user acc
 - **Description:** Resends the email verification link to the authenticated user.
 - **Headers:** `Authorization: Bearer <token>`
 - **Success Response (202):** Accepted.
+
+---
+
+## Common Error Responses
+
+- **401 Unauthorized:** The request is missing a valid authentication token.
+- **403 Forbidden:** The authenticated user does not have the required permissions to perform the action.
+- **422 Unprocessable Entity:** The request payload contains validation errors (e.g., a required field is missing, an email is not unique). The response body will contain a detailed list of the errors.
+- **500 Internal Server Error:** A generic error indicating a problem on the server.

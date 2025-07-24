@@ -115,3 +115,13 @@
       "message": "Meeting deleted successfully."
   }
   ```
+
+---
+
+## Common Error Responses
+
+- **401 Unauthorized:** The request is missing a valid authentication token.
+- **403 Forbidden:** The authenticated user does not have the required permissions (`manage meetings` or `delete meetings`).
+- **404 Not Found:** The requested meeting does not exist.
+- **422 Unprocessable Entity:** The request payload contains validation errors (e.g., a required field is missing, `start_date` is after `end_date`).
+- **500 Internal Server Error:** A generic error indicating a problem on the server.
