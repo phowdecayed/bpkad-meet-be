@@ -3,18 +3,23 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\MeetingLocationResource;
 use App\Models\MeetingLocation;
 use Illuminate\Http\Request;
-use Illuminate\Validation\Rule;
 
 class MeetingLocationController extends Controller
 {
+    public function __construct()
+    {
+        //
+    }
+
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        return MeetingLocation::all();
+        return MeetingLocationResource::collection(MeetingLocation::all());
     }
 
     /**
@@ -31,7 +36,9 @@ class MeetingLocationController extends Controller
 
         $location = MeetingLocation::create($validated);
 
-        return response()->json($location, 201);
+        return (new MeetingLocationResource($location))
+            ->response()
+            ->setStatusCode(201);
     }
 
     /**
@@ -39,7 +46,7 @@ class MeetingLocationController extends Controller
      */
     public function show(MeetingLocation $meetingLocation)
     {
-        return $meetingLocation;
+        return new MeetingLocationResource($meetingLocation);
     }
 
     /**
@@ -56,10 +63,7 @@ class MeetingLocationController extends Controller
 
         $meetingLocation->update($validated);
 
-        // Refresh the model to get the updated data
-        $meetingLocation->refresh();
-
-        return response()->json($meetingLocation);
+        return new MeetingLocationResource($meetingLocation);
     }
 
     /**
@@ -69,6 +73,6 @@ class MeetingLocationController extends Controller
     {
         $meetingLocation->delete();
 
-        return response()->json(null, 204);
+        return response()->json(['message' => 'Meeting location deleted successfully.'], 200);
     }
 }

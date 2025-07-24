@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\MeetingResource;
 use App\Models\Meeting;
 use App\Services\MeetingService;
 use Illuminate\Http\Request;
@@ -14,8 +15,6 @@ class MeetingController extends Controller
 
     public function __construct(MeetingService $meetingService)
     {
-        $this->middleware('permission:manage meetings', ['except' => ['destroy']]);
-        $this->middleware('permission:delete meetings', ['only' => ['destroy']]);
         $this->meetingService = $meetingService;
     }
 
@@ -24,7 +23,7 @@ class MeetingController extends Controller
      */
     public function index()
     {
-        return Meeting::with(['location', 'zoomMeeting'])->latest()->paginate();
+        return MeetingResource::collection(Meeting::with(['location', 'zoomMeeting'])->latest()->paginate());
     }
 
     /**
@@ -36,7 +35,9 @@ class MeetingController extends Controller
 
         $meeting = $this->meetingService->createMeeting($validated);
 
-        return response()->json($meeting, 201);
+        return (new MeetingResource($meeting->load(['location', 'zoomMeeting'])))
+            ->response()
+            ->setStatusCode(201);
     }
 
     /**
@@ -67,7 +68,7 @@ class MeetingController extends Controller
      */
     public function show(Meeting $meeting)
     {
-        return $meeting->load(['location', 'zoomMeeting']);
+        return new MeetingResource($meeting->load(['location', 'zoomMeeting']));
     }
 
     /**
@@ -96,6 +97,6 @@ class MeetingController extends Controller
 
         $updatedMeeting = $this->meetingService->updateMeeting($meeting, $validated);
 
-        return response()->json($updatedMeeting);
+        return new MeetingResource($updatedMeeting->load(['location', 'zoomMeeting']));
     }
 }

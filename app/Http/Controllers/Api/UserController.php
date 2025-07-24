@@ -20,11 +20,16 @@ class UserController extends Controller
             'password' => ['required', 'confirmed', Password::defaults()],
         ]);
 
-        $request->user()->update([
+        $user = $request->user();
+
+        $user->update([
             'password' => Hash::make($validated['password']),
         ]);
 
-        return response()->json(['message' => 'Password updated successfully.']);
+        // Revoke all existing tokens
+        $user->tokens()->delete();
+
+        return response()->json(['message' => 'Password updated successfully. All sessions have been logged out.']);
     }
 
     /**

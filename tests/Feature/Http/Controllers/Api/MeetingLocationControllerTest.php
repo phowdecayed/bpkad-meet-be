@@ -6,19 +6,31 @@ use App\Models\MeetingLocation;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
-use Laravel\Sanctum\Sanctum;
 use PHPUnit\Framework\Attributes\Test;
+use Spatie\Permission\Models\Permission;
+use Spatie\Permission\Models\Role;
 use Tests\TestCase;
 
 class MeetingLocationControllerTest extends TestCase
 {
     use RefreshDatabase, WithFaker;
 
+    protected User $adminUser;
+
     protected function setUp(): void
     {
         parent::setUp();
-        // Authenticate a user for all tests in this class
-        Sanctum::actingAs(User::factory()->create(), ['*']);
+
+        // Create a role and assign the necessary permission
+        $manageMeetingsPermission = Permission::create(['name' => 'manage meetings']);
+        $adminRole = Role::create(['name' => 'admin'])->givePermissionTo($manageMeetingsPermission);
+
+        // Create a user and assign the role
+        $this->adminUser = User::factory()->create();
+        $this->adminUser->assignRole($adminRole);
+
+        // Authenticate the user for all tests in this class
+        $this->actingAs($this->adminUser);
     }
 
     #[Test]
@@ -29,7 +41,7 @@ class MeetingLocationControllerTest extends TestCase
         $response = $this->getJson('/api/meeting-locations');
 
         $response->assertOk()
-            ->assertJsonCount(3);
+            ->assertJsonCount(3, 'data');
     }
 
     #[Test]
@@ -82,7 +94,7 @@ class MeetingLocationControllerTest extends TestCase
 
         $response = $this->deleteJson("/api/meeting-locations/{$location->id}");
 
-        $response->assertStatus(204);
+        $response->assertStatus(200); // Should be 200 for successful deletion message
 
         $this->assertDatabaseMissing('meeting_locations', ['id' => $location->id]);
     }

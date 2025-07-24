@@ -113,6 +113,9 @@ class AuthController extends Controller
                     'password' => Hash::make($password)
                 ])->save();
 
+                // Revoke all existing tokens
+                $user->tokens()->delete();
+
                 event(new PasswordReset($user));
             }
         );

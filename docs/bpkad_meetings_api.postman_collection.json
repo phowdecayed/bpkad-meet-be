@@ -17,10 +17,12 @@
 								"key": "Content-Type",
 								"value": "application/json"
 							},
+
 							{
 								"key": "Accept",
 								"value": "application/json"
 							}
+
 						],
 						"body": {
 							"mode": "raw",
@@ -48,10 +50,12 @@
 								"key": "Content-Type",
 								"value": "application/json"
 							},
+
 							{
 								"key": "Accept",
 								"value": "application/json"
 							}
+
 						],
 						"body": {
 							"mode": "raw",
@@ -79,10 +83,12 @@
 								"key": "Content-Type",
 								"value": "application/json"
 							},
+
 							{
 								"key": "Accept",
 								"value": "application/json"
 							}
+
 						],
 						"url": {
 							"raw": "{{base_url}}/api/user",
@@ -106,10 +112,12 @@
 								"key": "Content-Type",
 								"value": "application/json"
 							},
+
 							{
 								"key": "Accept",
 								"value": "application/json"
 							}
+
 						],
 						"url": {
 							"raw": "{{base_url}}/api/logout",
@@ -128,7 +136,18 @@
 					"name": "Forgot Password",
 					"request": {
 						"method": "POST",
-						"header": [],
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+
+						],
 						"body": {
 							"mode": "raw",
 							"raw": "{\n    \"email\": \"user@example.com\"\n}",
@@ -155,7 +174,18 @@
 					"name": "Reset Password",
 					"request": {
 						"method": "POST",
-						"header": [],
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+
+						],
 						"body": {
 							"mode": "raw",
 							"raw": "{\n    \"email\": \"user@example.com\",\n    \"token\": \"your-reset-token-from-email\",\n    \"password\": \"new-secure-password\",\n    \"password_confirmation\": \"new-secure-password\"\n}",
@@ -187,10 +217,12 @@
 								"key": "Content-Type",
 								"value": "application/json"
 							},
+
 							{
 								"key": "Accept",
 								"value": "application/json"
 							}
+
 						],
 						"url": {
 							"raw": "{{base_url}}/api/email/verification-notification",
@@ -215,7 +247,18 @@
 					"name": "Change Name",
 					"request": {
 						"method": "POST",
-						"header": [],
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+
+						],
 						"body": {
 							"mode": "raw",
 							"raw": "{\n    \"name\": \"My New Name\"\n}",
@@ -243,7 +286,18 @@
 					"name": "Change Email",
 					"request": {
 						"method": "POST",
-						"header": [],
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+
+						],
 						"body": {
 							"mode": "raw",
 							"raw": "{\n    \"email\": \"my.new.email@example.com\"\n}",
@@ -271,7 +325,18 @@
 					"name": "Change Password",
 					"request": {
 						"method": "POST",
-						"header": [],
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+
+						],
 						"body": {
 							"mode": "raw",
 							"raw": "{\n    \"current_password\": \"password\",\n    \"password\": \"new-strong-password\",\n    \"password_confirmation\": \"new-strong-password\"\n}",
@@ -304,7 +369,18 @@
 					"name": "List Roles",
 					"request": {
 						"method": "GET",
-						"header": [],
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+
+						],
 						"url": {
 							"raw": "{{base_url}}/api/roles",
 							"host": [
@@ -322,7 +398,18 @@
 					"name": "Create Role",
 					"request": {
 						"method": "POST",
-						"header": [],
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+
+						],
 						"body": {
 							"mode": "raw",
 							"raw": "{\n    \"name\": \"editor\"\n}",
@@ -349,7 +436,18 @@
 					"name": "List Permissions",
 					"request": {
 						"method": "GET",
-						"header": [],
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+
+						],
 						"url": {
 							"raw": "{{base_url}}/api/permissions",
 							"host": [
@@ -367,7 +465,18 @@
 					"name": "Assign Permission to Role",
 					"request": {
 						"method": "POST",
-						"header": [],
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+
+						],
 						"body": {
 							"mode": "raw",
 							"raw": "{\n    \"permission\": \"manage meetings\"\n}",
@@ -396,7 +505,18 @@
 					"name": "Revoke Permission from Role",
 					"request": {
 						"method": "DELETE",
-						"header": [],
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+
+						],
 						"body": {
 							"mode": "raw",
 							"raw": "{\n    \"permission\": \"manage meetings\"\n}",
@@ -420,6 +540,34 @@
 						}
 					},
 					"response": []
+				},
+				{
+					"name": "Delete Role",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/roles/3",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"roles",
+								"3"
+							]
+						}
+					},
+					"response": []
 				}
 			]
 		},
@@ -435,10 +583,12 @@
 								"key": "Content-Type",
 								"value": "application/json"
 							},
+
 							{
 								"key": "Accept",
 								"value": "application/json"
 							}
+
 						],
 						"url": {
 							"raw": "{{base_url}}/api/meeting-locations",
@@ -462,10 +612,12 @@
 								"key": "Content-Type",
 								"value": "application/json"
 							},
+
 							{
 								"key": "Accept",
 								"value": "application/json"
 							}
+
 						],
 						"body": {
 							"mode": "raw",
@@ -493,10 +645,12 @@
 								"key": "Content-Type",
 								"value": "application/json"
 							},
+
 							{
 								"key": "Accept",
 								"value": "application/json"
 							}
+
 						],
 						"url": {
 							"raw": "{{base_url}}/api/meeting-locations/1",
@@ -521,10 +675,12 @@
 								"key": "Content-Type",
 								"value": "application/json"
 							},
+
 							{
 								"key": "Accept",
 								"value": "application/json"
 							}
+
 						],
 						"body": {
 							"mode": "raw",
@@ -553,10 +709,12 @@
 								"key": "Content-Type",
 								"value": "application/json"
 							},
+
 							{
 								"key": "Accept",
 								"value": "application/json"
 							}
+
 						],
 						"url": {
 							"raw": "{{base_url}}/api/meeting-locations/1",
@@ -586,10 +744,12 @@
 								"key": "Content-Type",
 								"value": "application/json"
 							},
+
 							{
 								"key": "Accept",
 								"value": "application/json"
 							}
+
 						],
 						"url": {
 							"raw": "{{base_url}}/api/meetings",
@@ -613,10 +773,12 @@
 								"key": "Content-Type",
 								"value": "application/json"
 							},
+
 							{
 								"key": "Accept",
 								"value": "application/json"
 							}
+
 						],
 						"body": {
 							"mode": "raw",
@@ -644,10 +806,12 @@
 								"key": "Content-Type",
 								"value": "application/json"
 							},
+
 							{
 								"key": "Accept",
 								"value": "application/json"
 							}
+
 						],
 						"body": {
 							"mode": "raw",
@@ -675,10 +839,12 @@
 								"key": "Content-Type",
 								"value": "application/json"
 							},
+
 							{
 								"key": "Accept",
 								"value": "application/json"
 							}
+
 						],
 						"body": {
 							"mode": "raw",
@@ -706,10 +872,12 @@
 								"key": "Content-Type",
 								"value": "application/json"
 							},
+
 							{
 								"key": "Accept",
 								"value": "application/json"
 							}
+
 						],
 						"url": {
 							"raw": "{{base_url}}/api/meetings/1",
@@ -734,10 +902,12 @@
 								"key": "Content-Type",
 								"value": "application/json"
 							},
+
 							{
 								"key": "Accept",
 								"value": "application/json"
 							}
+
 						],
 						"body": {
 							"mode": "raw",
@@ -766,10 +936,12 @@
 								"key": "Content-Type",
 								"value": "application/json"
 							},
+
 							{
 								"key": "Accept",
 								"value": "application/json"
 							}
+
 						],
 						"url": {
 							"raw": "{{base_url}}/api/meetings/1",
@@ -799,10 +971,12 @@
 								"key": "Content-Type",
 								"value": "application/json"
 							},
+
 							{
 								"key": "Accept",
 								"value": "application/json"
 							}
+
 						],
 						"url": {
 							"raw": "{{base_url}}/api/zoom/auth",
@@ -827,10 +1001,12 @@
 								"key": "Content-Type",
 								"value": "application/json"
 							},
+
 							{
 								"key": "Accept",
 								"value": "application/json"
 							}
+
 						],
 						"body": {
 							"mode": "raw",
@@ -859,10 +1035,12 @@
 								"key": "Content-Type",
 								"value": "application/json"
 							},
+
 							{
 								"key": "Accept",
 								"value": "application/json"
 							}
+
 						],
 						"url": {
 							"raw": "{{base_url}}/api/zoom/meetings",
@@ -887,10 +1065,12 @@
 								"key": "Content-Type",
 								"value": "application/json"
 							},
+
 							{
 								"key": "Accept",
 								"value": "application/json"
 							}
+
 						],
 						"url": {
 							"raw": "{{base_url}}/api/zoom/meetings?meetingId=123456789",
@@ -907,6 +1087,7 @@
 									"key": "meetingId",
 									"value": "123456789"
 								}
+
 							]
 						}
 					},
@@ -921,10 +1102,12 @@
 								"key": "Content-Type",
 								"value": "application/json"
 							},
+
 							{
 								"key": "Accept",
 								"value": "application/json"
 							}
+
 						],
 						"body": {
 							"mode": "raw",
@@ -945,6 +1128,7 @@
 									"key": "meetingId",
 									"value": "123456789"
 								}
+
 							]
 						}
 					},
@@ -959,10 +1143,12 @@
 								"key": "Content-Type",
 								"value": "application/json"
 							},
+
 							{
 								"key": "Accept",
 								"value": "application/json"
 							}
+
 						],
 						"url": {
 							"raw": "{{base_url}}/api/zoom/meetings?meetingId=123456789",
@@ -979,6 +1165,7 @@
 									"key": "meetingId",
 									"value": "123456789"
 								}
+
 							]
 						}
 					},
@@ -993,10 +1180,12 @@
 								"key": "Content-Type",
 								"value": "application/json"
 							},
+
 							{
 								"key": "Accept",
 								"value": "application/json"
 							}
+
 						],
 						"url": {
 							"raw": "{{base_url}}/api/zoom/meetings/3SjLbv0IRgmY2LX0FzPJSg==/summary",
@@ -1023,10 +1212,12 @@
 								"key": "Content-Type",
 								"value": "application/json"
 							},
+
 							{
 								"key": "Accept",
 								"value": "application/json"
 							}
+
 						],
 						"url": {
 							"raw": "{{base_url}}/api/zoom/past_meetings?meetingId=123456789",
@@ -1043,6 +1234,7 @@
 									"key": "meetingId",
 									"value": "123456789"
 								}
+
 							]
 						}
 					},
@@ -1059,6 +1251,7 @@
 				"value": "{{auth_token}}",
 				"type": "string"
 			}
+
 		]
 	},
 	"event": [
@@ -1092,5 +1285,6 @@
 			"value": "",
 			"type": "string"
 		}
+
 	]
 }

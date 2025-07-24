@@ -11,7 +11,7 @@ class RoleController extends Controller
 {
     public function __construct()
     {
-        $this->middleware('permission:manage roles');
+        //
     }
 
     /**
@@ -31,7 +31,10 @@ class RoleController extends Controller
             'name' => 'required|string|unique:roles,name'
         ]);
 
-        $role = Role::create(['name' => $request->name]);
+        $role = Role::create([
+            'name' => $request->name,
+            'guard_name' => 'web' // Explicitly set the guard
+        ]);
 
         return response()->json($role, 201);
     }
@@ -63,6 +66,7 @@ class RoleController extends Controller
      */
     public function destroy(Role $role)
     {
+
         $role->delete();
 
         return response()->json(['message' => 'Role deleted successfully.']);

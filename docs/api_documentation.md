@@ -268,6 +268,14 @@ Endpoints for administrators to manage roles and permissions.
 - **Headers:** `Authorization: Bearer <token>`
 - **Success Response (200):** An array of permission objects.
 
+### 6. Delete Role
+
+- **Method:** `DELETE`
+- **Endpoint:** `/api/roles/{id}`
+- **Description:** Deletes a specific role. **Requires `manage roles` permission.**
+- **Headers:** `Authorization: Bearer <token>`
+- **Success Response (200):** `{"message": "Role deleted successfully."}`
+
 ---
 
 ## Meeting Location Management

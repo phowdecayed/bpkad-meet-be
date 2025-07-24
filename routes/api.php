@@ -13,7 +13,7 @@ use App\Http\Controllers\Api\PermissionController;
 
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/forgot-password', [AuthController::class, 'forgotPassword'])->name('password.email');
-Route::post('/reset-password', [AuthController::class, 'resetPassword'])->name('password.update');
+Route::post('/reset-password', [AuthController::class, 'resetPassword'])->name('password.reset');
 
 // Email Verification - This route is public as it's accessed from the email link
 Route::get('/email/verify/{id}/{hash}', [VerificationController::class, 'verify'])
