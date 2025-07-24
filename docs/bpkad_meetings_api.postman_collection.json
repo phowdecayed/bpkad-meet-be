@@ -293,6 +293,35 @@
 						}
 					},
 					"response": []
+				},
+				{
+					"name": "Resend Verification Email (Admin)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/users/2/resend-verification",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"users",
+								"2",
+								"resend-verification"
+							]
+						}
+					},
+					"response": []
 				}
 			]
 		},

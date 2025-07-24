@@ -72,5 +72,19 @@ class UserController extends Controller
         return response()->json(['message' => 'Email updated successfully.']);
     }
 
-    
+    /**
+     * Resend the email verification notification for a specific user.
+     */
+    public function resendVerificationEmail(Request $request, User $user)
+    {
+        $this->authorize('manage', $user);
+
+        if ($user->hasVerifiedEmail()) {
+            return response()->json(['message' => 'User has already verified their email.'], 422);
+        }
+
+        $user->sendEmailVerificationNotification();
+
+        return response()->json(['message' => 'Verification email sent successfully.']);
+    }
 }

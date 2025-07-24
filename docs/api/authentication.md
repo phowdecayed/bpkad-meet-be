@@ -226,6 +226,20 @@ This section covers endpoints for user registration, login, and general user acc
 - **Headers:** `Authorization: Bearer <token>`
 - **Success Response (202):** Accepted.
 
+### 10. Resend Verification Email (Admin)
+
+- **Method:** `POST`
+- **Endpoint:** `/api/users/{userId}/resend-verification`
+- **Description:** Resends the email verification link to a specific user. Requires the `manage users` permission.
+- **Headers:** `Authorization: Bearer <token>`
+- **Success Response (200):**
+  ```json
+  {
+      "message": "Verification email sent successfully."
+  }
+  ```
+
+
 ---
 
 ## Common Error Responses

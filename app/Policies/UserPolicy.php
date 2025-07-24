@@ -19,4 +19,15 @@ class UserPolicy
     {
         return $user->hasPermissionTo('view users');
     }
+
+    /**
+     * Determine whether the user can manage a user.
+     *
+     * @param  \App\Models\User  $user
+     * @return \Illuminate\Auth\Access\Response|bool
+     */
+    public function manage(User $user)
+    {
+        return $user->hasPermissionTo('manage users');
+    }
 }

@@ -61,6 +61,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // User Management
     Route::get('/users', [UserController::class, 'index'])->middleware('permission:view users');
+    Route::post('/users/{user}/resend-verification', [UserController::class, 'resendVerificationEmail'])->middleware('permission:manage users');
 
     // Role and Permission Management
     Route::apiResource('roles', RoleController::class)->middleware('permission:manage roles');
