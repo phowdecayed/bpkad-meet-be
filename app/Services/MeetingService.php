@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\Meeting;
 use App\Models\Setting;
 use App\Models\ZoomMeeting;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 
@@ -26,9 +27,18 @@ class MeetingService
      */
     public function createMeeting(array $data): Meeting
     {
+        // 1. Check for location conflicts for offline or hybrid meetings
+        if (in_array($data['type'], ['offline', 'hybrid']) && isset($data['location_id'])) {
+            $this->checkForLocationConflict(
+                $data['location_id'],
+                $data['start_time'],
+                $data['duration']
+            );
+        }
+
         // Use a database transaction to ensure data integrity
         return DB::transaction(function () use ($data) {
-            // 1. Create the core meeting record
+            // 2. Create the core meeting record
             $meeting = Meeting::create([
                 'organizer_id' => $data['organizer_id'],
                 'topic' => $data['topic'],
@@ -157,6 +167,22 @@ class MeetingService
      */
     public function updateMeeting(Meeting $meeting, array $data): Meeting
     {
+        // Determine the parameters for the conflict check
+        $locationId = $data['location_id'] ?? $meeting->location_id;
+        $startTime = $data['start_time'] ?? $meeting->start_time;
+        $duration = $data['duration'] ?? $meeting->duration;
+        $type = $data['type'] ?? $meeting->type;
+
+        // Check for location conflicts if relevant fields are being updated
+        if (in_array($type, ['offline', 'hybrid']) && $locationId) {
+            $this->checkForLocationConflict(
+                $locationId,
+                $startTime,
+                $duration,
+                $meeting->id // Exclude the current meeting from the check
+            );
+        }
+
         return DB::transaction(function () use ($meeting, $data) {
             $meeting->update($data);
 
@@ -182,5 +208,41 @@ class MeetingService
 
             return $meeting->load(['organizer', 'location', 'zoomMeeting']);
         });
+    }
+
+    /**
+     * Check for scheduling conflicts for a given location and time.
+     *
+     * @param int $locationId
+     * @param string $startTime
+     * @param int $duration
+     * @param int|null $excludeMeetingId
+     * @throws ValidationException
+     */
+    private function checkForLocationConflict(int $locationId, string $startTime, int $duration, int $excludeMeetingId = null): void
+    {
+        $newStartTime = Carbon::parse($startTime);
+        $newEndTime = $newStartTime->copy()->addMinutes($duration);
+
+        $query = Meeting::where('location_id', $locationId)
+            ->whereIn('type', ['offline', 'hybrid']);
+
+        if ($excludeMeetingId) {
+            $query->where('id', '!=', $excludeMeetingId);
+        }
+
+        $meetings = $query->get();
+
+        foreach ($meetings as $meeting) {
+            $existingStartTime = Carbon::parse($meeting->start_time);
+            $existingEndTime = $existingStartTime->copy()->addMinutes($meeting->duration);
+
+            // Check for overlap
+            if ($newStartTime < $existingEndTime && $newEndTime > $existingStartTime) {
+                throw ValidationException::withMessages([
+                    'location_id' => 'This location is already booked for the selected time slot.'
+                ]);
+            }
+        }
     }
 }
