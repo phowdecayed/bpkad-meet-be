@@ -9,6 +9,7 @@ use App\Http\Resources\PublicMeetingResource;
 use App\Http\Resources\UserResource;
 use App\Models\Meeting;
 use App\Models\User;
+use App\Rules\NoTimeConflict;
 use App\Services\MeetingService;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
@@ -110,7 +111,7 @@ class MeetingController extends Controller
         return validator($data, [
             'topic' => 'required|string|max:255',
             'description' => 'nullable|string',
-            'start_time' => 'required|date',
+            'start_time' => ['required', 'date', new NoTimeConflict],
             'duration' => 'required|integer|min:1',
             'type' => ['required', Rule::in(['online', 'offline', 'hybrid'])],
             'location_id' => [

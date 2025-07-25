@@ -27,23 +27,26 @@ class MeetingService
      */
     public function createMeeting(array $data): Meeting
     {
+        // Parse the start time using the application's timezone.
+        $startTime = Carbon::parse($data['start_time']);
+
         // 1. Check for location conflicts for offline or hybrid meetings
         if (in_array($data['type'], ['offline', 'hybrid']) && isset($data['location_id'])) {
             $this->checkForLocationConflict(
                 $data['location_id'],
-                $data['start_time'],
+                $startTime,
                 $data['duration']
             );
         }
 
         // Use a database transaction to ensure data integrity
-        return DB::transaction(function () use ($data) {
+        return DB::transaction(function () use ($data, $startTime) {
             // 2. Create the core meeting record
             $meeting = Meeting::create([
                 'organizer_id' => $data['organizer_id'],
                 'topic' => $data['topic'],
                 'description' => $data['description'] ?? null,
-                'start_time' => $data['start_time'],
+                'start_time' => $startTime, // Use the parsed Carbon object
                 'duration' => $data['duration'],
                 'type' => $data['type'],
                 'location_id' => $data['location_id'] ?? null,
@@ -65,16 +68,22 @@ class MeetingService
                     ]);
                 }
 
+                $endTime = $startTime->copy()->addMinutes($data['duration']);
+
                 $selectedSetting = null;
                 foreach ($zoomSettings as $setting) {
-                    $activeMeetingsCount = ZoomMeeting::where('setting_id', $setting->id)
-                        ->where('start_time', '<=', now())
-                        ->get()
-                        ->filter(function ($zoomMeeting) {
-                            return $zoomMeeting->start_time->addMinutes($zoomMeeting->duration)->isFuture();
-                        })->count();
+                    $conflictingMeetingsCount = Meeting::whereHas('zoomMeeting', function ($query) use ($setting) {
+                        $query->where('setting_id', $setting->id);
+                    })
+                    ->where(function ($query) use ($startTime, $endTime) {
+                        $query->where(function ($q) use ($startTime, $endTime) {
+                            $q->where('start_time', '<', $endTime)
+                              ->whereRaw('DATETIME(start_time, \'+\' || duration || \' minutes\') > ?', [$startTime]);
+                        });
+                    })
+                    ->count();
 
-                    if ($activeMeetingsCount < 2) {
+                    if ($conflictingMeetingsCount < 2) {
                         $selectedSetting = $setting;
                         break;
                     }
@@ -82,7 +91,7 @@ class MeetingService
 
                 if (!$selectedSetting) {
                     throw ValidationException::withMessages([
-                        'zoom_api' => 'All Zoom accounts are currently busy. Please try again later.'
+                        'zoom_api' => 'All available Zoom accounts are at their maximum concurrent meeting limit for the selected time.'
                     ]);
                 }
 
@@ -96,7 +105,8 @@ class MeetingService
                 $zoomResponse = $this->zoomService->createMeeting(
                     [
                         'topic' => $data['topic'],
-                        'start_time' => $data['start_time'],
+                        // Send the time to Zoom in UTC format, as required by their API
+                        'start_time' => $startTime->clone()->utc()->toIso8601String(),
                         'duration' => $data['duration'],
                         'password' => $data['password'] ?? null,
                         // Pass any other zoom-specific settings from the request

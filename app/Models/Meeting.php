@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Carbon;
 
 class Meeting extends Model
 {
@@ -24,6 +25,11 @@ class Meeting extends Model
     ];
 
     protected $with = ['zoomMeeting.setting'];
+
+    public function setStartTimeAttribute($value)
+    {
+        $this->attributes['start_time'] = Carbon::parse($value);
+    }
 
     public function organizer()
     {
