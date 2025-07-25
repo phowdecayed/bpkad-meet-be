@@ -56,7 +56,7 @@ Endpoints for administrators to manage roles and permissions.
 | `permission` | string | required, exists:permissions,name | The name of the permission to assign. |
 - **Success Response (200):** `{"message": "Permission assigned successfully."}`
 
-### 4. Revoke Permission from Role
+### 6. Revoke Permission from Role
 
 - **Method:** `DELETE`
 - **Endpoint:** `/api/roles/{role}/permissions`
@@ -68,7 +68,7 @@ Endpoints for administrators to manage roles and permissions.
 | `permission` | string | required, exists:permissions,name | The name of the permission to revoke. |
 - **Success Response (200):** `{"message": "Permission revoked successfully."}`
 
-### 5. List Permissions
+### 7. List Permissions
 
 - **Method:** `GET`
 - **Endpoint:** `/api/permissions`
@@ -76,7 +76,7 @@ Endpoints for administrators to manage roles and permissions.
 - **Headers:** `Authorization: Bearer <token>`
 - **Success Response (200):** An array of permission objects.
 
-### 6. Delete Role
+### 8. Delete Role
 
 - **Method:** `DELETE`
 - **Endpoint:** `/api/roles/{id}`

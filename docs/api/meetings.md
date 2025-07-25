@@ -79,7 +79,7 @@
   }
   ```
 
-### 3. Get a Specific Meeting
+### 4. Get a Specific Meeting
 
 - **Method:** `GET`
 - **Endpoint:** `/api/meetings/{id}`
@@ -87,7 +87,7 @@
 - **Headers:** `Authorization: Bearer <token>`
 - **Success Response (200):** Returns the full meeting object with relations.
 
-### 4. Update a Meeting
+### 5. Update a Meeting
 
 - **Method:** `PUT` or `PATCH`
 - **Endpoint:** `/api/meetings/{id}`
@@ -106,7 +106,7 @@
 
 - **Success Response (200):** Returns the updated meeting object with relations.
 
-### 5. Delete a Meeting
+### 6. Delete a Meeting
 
 - **Method:** `DELETE`
 - **Endpoint:** `/api/meetings/{id}`
@@ -119,7 +119,7 @@
   }
   ```
 
-### 6. List Participants
+### 7. List Participants
 
 - **Method:** `GET`
 - **Endpoint:** `/api/meetings/{id}/participants`
@@ -127,7 +127,7 @@
 - **Headers:** `Authorization: Bearer <token>`
 - **Success Response (200):** A collection of user objects.
 
-### 7. Invite Participant
+### 8. Invite Participant
 
 - **Method:** `POST`
 - **Endpoint:** `/api/meetings/{id}/invite`
@@ -139,7 +139,7 @@
 | `user_id` | integer | required, exists:users,id | The ID of the user to invite. |
 - **Success Response (200):** `{"message": "User invited successfully."}`
 
-### 8. Remove Participant
+### 9. Remove Participant
 
 - **Method:** `DELETE`
 - **Endpoint:** `/api/meetings/{id}/participants/{userId}`

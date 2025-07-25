@@ -25,6 +25,7 @@ class ZoomMeeting extends Model
         'join_url',
         'password',
         'settings',
+        'setting_id',
     ];
 
     protected $casts = [
@@ -36,5 +37,10 @@ class ZoomMeeting extends Model
     public function meeting()
     {
         return $this->belongsTo(Meeting::class);
+    }
+
+    public function setting()
+    {
+        return $this->belongsTo(Setting::class);
     }
 }

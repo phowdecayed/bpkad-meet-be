@@ -24,6 +24,7 @@ class RolesAndPermissionsSeeder extends Seeder
             'create meetings',
             'edit meetings',
             'delete meetings',
+            'manage meetings',
             'view users',
             'manage users',
             'manage roles',

@@ -114,7 +114,7 @@ class ZoomService
     /**
      * Create a new Zoom meeting and save it to the database.
      */
-    public function createMeeting(array $meetingData, int $parentMeetingId): Response
+    public function createMeeting(array $meetingData, int $parentMeetingId, int $settingId): Response
     {
         // Default meeting data
         $defaults = [
@@ -142,7 +142,7 @@ class ZoomService
         $response = $this->makeRequest('POST', '/users/me/meetings', $data);
 
         if ($response->successful()) {
-            $this->saveMeeting($response->json(), $parentMeetingId);
+            $this->saveMeeting($response->json(), $parentMeetingId, $settingId);
         }
 
         return $response;
@@ -151,7 +151,7 @@ class ZoomService
     /**
      * Save the meeting details to the database.
      */
-    protected function saveMeeting(array $data, int $parentMeetingId = null): void
+    protected function saveMeeting(array $data, int $parentMeetingId = null, int $settingId = null): void
     {
         // Find the existing zoom meeting or create a new one
         $zoomMeeting = ZoomMeeting::firstOrNew(['zoom_id' => $data['id']]);
@@ -176,6 +176,10 @@ class ZoomService
         // If a parent meeting ID is provided (on create), associate it.
         if ($parentMeetingId) {
             $zoomMeeting->meeting_id = $parentMeetingId;
+        }
+
+        if ($settingId) {
+            $zoomMeeting->setting_id = $settingId;
         }
 
         $zoomMeeting->save();

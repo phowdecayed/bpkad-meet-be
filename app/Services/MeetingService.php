@@ -46,16 +46,37 @@ class MeetingService
 
             // 4. If the meeting is online or hybrid, create a Zoom meeting
             if (in_array($data['type'], ['online', 'hybrid'])) {
-                // Find the first available zoom credentials from settings
-                $zoomSetting = Setting::where('group', 'zoom')->first();
+                // Find all available zoom credentials from settings
+                $zoomSettings = Setting::where('group', 'zoom')->get();
 
-                if (!$zoomSetting) {
+                if ($zoomSettings->isEmpty()) {
                     throw ValidationException::withMessages([
                         'zoom_api' => 'Zoom integration settings are not configured.'
                     ]);
                 }
 
-                $credentials = $zoomSetting->payload;
+                $selectedSetting = null;
+                foreach ($zoomSettings as $setting) {
+                    $activeMeetingsCount = ZoomMeeting::where('setting_id', $setting->id)
+                        ->where('start_time', '<=', now())
+                        ->get()
+                        ->filter(function ($zoomMeeting) {
+                            return $zoomMeeting->start_time->addMinutes($zoomMeeting->duration)->isFuture();
+                        })->count();
+
+                    if ($activeMeetingsCount < 2) {
+                        $selectedSetting = $setting;
+                        break;
+                    }
+                }
+
+                if (!$selectedSetting) {
+                    throw ValidationException::withMessages([
+                        'zoom_api' => 'All Zoom accounts are currently busy. Please try again later.'
+                    ]);
+                }
+
+                $credentials = $selectedSetting->payload;
                 $this->zoomService->setCredentials(
                     $credentials['client_id'],
                     $credentials['client_secret'],
@@ -71,7 +92,8 @@ class MeetingService
                         // Pass any other zoom-specific settings from the request
                         'settings' => $data['settings'] ?? [],
                     ],
-                    $meeting->id // Pass the parent meeting ID
+                    $meeting->id, // Pass the parent meeting ID
+                    $selectedSetting->id
                 );
 
                 if (!$zoomResponse->successful()) {
@@ -102,8 +124,22 @@ class MeetingService
     {
         // If the meeting has an associated Zoom meeting, delete it from Zoom first.
         if ($meeting->zoomMeeting) {
-            $this->prepareZoomService();
-            $this->zoomService->deleteMeeting($meeting->zoomMeeting->zoom_id);
+            $zoomSetting = $meeting->zoomMeeting->setting;
+
+            if (!$zoomSetting) {
+                // Fallback to the first available setting if the associated one is not found
+                $zoomSetting = Setting::where('group', 'zoom')->first();
+            }
+
+            if ($zoomSetting) {
+                $credentials = $zoomSetting->payload;
+                $this->zoomService->setCredentials(
+                    $credentials['client_id'],
+                    $credentials['client_secret'],
+                    $credentials['account_id']
+                );
+                $this->zoomService->deleteMeeting($meeting->zoomMeeting->zoom_id);
+            }
         }
 
         // Delete the core meeting record.
@@ -126,34 +162,25 @@ class MeetingService
 
             // If the meeting is online or hybrid and has a zoom meeting, update it.
             if ($meeting->zoomMeeting && in_array($meeting->type, ['online', 'hybrid'])) {
-                $this->prepareZoomService();
-                $this->zoomService->updateMeeting($meeting->zoomMeeting->zoom_id, $data);
+                $zoomSetting = $meeting->zoomMeeting->setting;
+
+                if (!$zoomSetting) {
+                    // Fallback to the first available setting if the associated one is not found
+                    $zoomSetting = Setting::where('group', 'zoom')->first();
+                }
+
+                if ($zoomSetting) {
+                    $credentials = $zoomSetting->payload;
+                    $this->zoomService->setCredentials(
+                        $credentials['client_id'],
+                        $credentials['client_secret'],
+                        $credentials['account_id']
+                    );
+                    $this->zoomService->updateMeeting($meeting->zoomMeeting->zoom_id, $data);
+                }
             }
 
             return $meeting->load(['organizer', 'location', 'zoomMeeting']);
         });
-    }
-
-    /**
-     * Prepare the Zoom service with credentials from the database.
-     *
-     * @return void
-     */
-    private function prepareZoomService(): void
-    {
-        $zoomSetting = Setting::where('group', 'zoom')->first();
-
-        if (!$zoomSetting) {
-            throw ValidationException::withMessages([
-                'zoom_api' => 'Zoom integration settings are not configured.'
-            ]);
-        }
-
-        $credentials = $zoomSetting->payload;
-        $this->zoomService->setCredentials(
-            $credentials['client_id'],
-            $credentials['client_secret'],
-            $credentials['account_id']
-        );
     }
 }

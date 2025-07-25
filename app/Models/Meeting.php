@@ -23,6 +23,8 @@ class Meeting extends Model
         'start_time' => 'datetime',
     ];
 
+    protected $with = ['zoomMeeting.setting'];
+
     public function organizer()
     {
         return $this->belongsTo(User::class, 'organizer_id');
