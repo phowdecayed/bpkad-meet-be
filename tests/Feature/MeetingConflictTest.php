@@ -8,7 +8,6 @@ use App\Models\Setting;
 use App\Models\User;
 use App\Services\ZoomService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\Http;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
@@ -24,6 +23,37 @@ class MeetingConflictTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
+
+        // Fake the Zoom API HTTP calls for all tests in this file
+        Http::fake([
+            'https://zoom.us/oauth/token' => Http::response([
+                'access_token' => 'fake-access-token',
+                'expires_in' => 3600,
+            ]),
+            'https://api.zoom.us/v2/*' => Http::response([
+                'uuid' => 'fake-uuid-123',
+                'id' => '123456789',
+                'host_id' => 'fake-host-id',
+                'host_email' => 'fake@example.com',
+                'topic' => 'Test Meeting',
+                'type' => 2,
+                'status' => 'waiting',
+                'start_time' => now()->toIso8601String(),
+                'duration' => 60,
+                'timezone' => 'UTC',
+                'created_at' => now()->toIso8601String(),
+                'start_url' => 'https://zoom.us/s/123456789',
+                'join_url' => 'https://zoom.us/j/123456789',
+                'password' => '123456',
+                'settings' => [
+                    'host_video' => true,
+                    'participant_video' => true,
+                    'join_before_host' => true,
+                    'mute_upon_entry' => true,
+                    'waiting_room' => false,
+                ],
+            ]),
+        ]);
 
         // Create permissions
         $createMeetingsPermission = Permission::create(['name' => 'create meetings']);
@@ -142,13 +172,7 @@ class MeetingConflictTest extends TestCase
      */
     public function test_can_create_online_meeting_during_offline_meeting()
     {
-        // Arrange: Mock the ZoomService to prevent actual API calls
-        $this->mock(ZoomService::class, function ($mock) {
-            // Mock the createMeeting method to return a successful response
-            $mock->shouldReceive('createMeeting')->andReturn(new Response(Http::response(['uuid' => 'fake-uuid'])));
-        });
-
-        // Create an existing offline meeting
+        // Arrange: Create an existing offline meeting
         Meeting::factory()->create([
             'location_id' => $this->location->id,
             'start_time' => '2025-08-01 10:00:00',
