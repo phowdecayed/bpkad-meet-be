@@ -29,6 +29,7 @@ class RolesAndPermissionsSeeder extends Seeder
             'manage users',
             'manage roles',
             'manage settings',
+            'view host key',
         ];
 
         foreach ($permissions as $permission) {
