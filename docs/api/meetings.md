@@ -19,12 +19,16 @@
 
 - **Method:** `GET`
 - **Endpoint:** `/api/meetings`
-- **Description:** Retrieves a paginated list of meetings. If the user has the `view meetings` permission, it returns all meetings. Otherwise, it returns only the meetings organized by the authenticated user.
+- **Description:** Retrieves a paginated list of meetings. If the user has the `view meetings` permission, it returns all meetings. Otherwise, it returns only the meetings organized by the authenticated user. It supports filtering by topic, start date, location, and type.
 - **Headers:** `Authorization: Bearer <token>`
 - **Query Parameters:**
 | Parameter | Type | Description |
 |---|---|---|
 | `page` | integer | The page number for pagination. |
+| `topic` | string | Search for meetings by topic. |
+| `start_time` | date | Filter meetings by a specific date (e.g., `2025-07-28`). |
+| `location` | string | Filter meetings by location name. |
+| `type` | string | Filter meetings by type (`online`, `offline`, `hybrid`, or `all`). |
 - **Success Response (200):** A paginated list of meeting objects.
 
 ### 3. Create a Meeting

@@ -45,6 +45,24 @@ class MeetingController extends Controller
             });
         }
 
+        if ($request->has('topic')) {
+            $query->where('topic', 'like', '%' . $request->input('topic') . '%');
+        }
+
+        if ($request->has('start_time')) {
+            $query->whereDate('start_time', $request->input('start_time'));
+        }
+        
+        if ($request->has('location')) {
+            $query->whereHas('location', function ($q) use ($request) {
+                $q->where('name', 'like', '%' . $request->input('location') . '%');
+            });
+        }
+
+        if ($request->has('type') && $request->input('type') !== 'all') {
+            $query->where('type', $request->input('type'));
+        }
+
         return MeetingListItemResource::collection($query->latest()->paginate());
     }
 

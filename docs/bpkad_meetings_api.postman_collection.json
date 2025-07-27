@@ -1040,13 +1040,31 @@
 							}
 						],
 						"url": {
-							"raw": "{{base_url}}/api/meetings",
+							"raw": "{{base_url}}/api/meetings?topic=Budget&start_time=2025-07-28&location=Main%20Office&type=online",
 							"host": [
 								"{{base_url}}"
 							],
 							"path": [
 								"api",
 								"meetings"
+							],
+							"query": [
+								{
+									"key": "topic",
+									"value": "Budget"
+								},
+								{
+									"key": "start_time",
+									"value": "2025-07-28"
+								},
+								{
+									"key": "location",
+									"value": "Main Office"
+								},
+								{
+									"key": "type",
+									"value": "online"
+								}
 							]
 						}
 					},
