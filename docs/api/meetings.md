@@ -24,7 +24,7 @@
 - **Query Parameters:**
 | Parameter | Type | Description |
 |---|---|---|
-| `page` | integer | The page number for pagination. |
+| `per_page` | integer | The number of items to show per page. Defaults to 15. |
 | `topic` | string | Search for meetings by topic. |
 | `start_time` | date | Filter meetings by a specific date (e.g., `2025-07-28`). |
 | `location` | string | Filter meetings by location name. |

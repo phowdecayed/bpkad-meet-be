@@ -1040,7 +1040,7 @@
 							}
 						],
 						"url": {
-							"raw": "{{base_url}}/api/meetings?topic=Budget&start_time=2025-07-28&location=Main%20Office&type=online",
+							"raw": "{{base_url}}/api/meetings?topic=Budget&start_time=2025-07-28&location=Main%20Office&type=online&per_page=10",
 							"host": [
 								"{{base_url}}"
 							],
@@ -1064,6 +1064,10 @@
 								{
 									"key": "type",
 									"value": "online"
+								},
+								{
+									"key": "per_page",
+									"value": "10"
 								}
 							]
 						}

@@ -24,3 +24,5 @@ Homestead.yaml
 Thumbs.db
 .kiro/*
 .vercel/*
+docker/db.env
+docker/postgres/*

@@ -46,9 +46,14 @@ class StatisticController extends Controller
 
             $dbDriver = config('database.connections.' . config('database.default') . '.driver');
 
-            $yearMonthSelect = ($dbDriver === 'sqlite')
-                ? "strftime('%Y', start_time) as year, strftime('%m', start_time) as month"
-                : "YEAR(start_time) as year, MONTH(start_time) as month";
+            if ($dbDriver === 'sqlite') {
+                $yearMonthSelect = "strftime('%Y', start_time) as year, strftime('%m', start_time) as month";
+            } elseif ($dbDriver === 'pgsql') {
+                $yearMonthSelect = "EXTRACT(YEAR FROM start_time) as year, EXTRACT(MONTH FROM start_time) as month";
+            } else {
+                // Default to MySQL syntax
+                $yearMonthSelect = "YEAR(start_time) as year, MONTH(start_time) as month";
+            }
 
 
             $meetingsByMonth = Meeting::select(
@@ -71,7 +76,7 @@ class StatisticController extends Controller
             return [
                 'overview' => [
                     'total_meetings' => $totalMeetings,
-                    'average_duration_minutes' => round($averageDuration),
+                    'average_duration_minutes' => round($averageDuration ?? 0),
                     'meetings_this_month' => $meetingsThisMonth,
                 ],
                 'meeting_trends' => [

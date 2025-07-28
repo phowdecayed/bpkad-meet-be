@@ -63,7 +63,8 @@ class MeetingController extends Controller
             $query->where('type', $request->input('type'));
         }
 
-        return MeetingListItemResource::collection($query->latest()->paginate());
+        $perPage = $request->input('per_page', 15);
+        return MeetingListItemResource::collection($query->latest()->paginate($perPage));
     }
 
     /**
