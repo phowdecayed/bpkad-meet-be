@@ -72,4 +72,10 @@ After running these commands, the application should be accessible at `http://lo
 
 The database credentials are not hard-coded in the `docker-compose.yml` file. Instead, they are stored in `docker/db.env`. This file is used by both the `app` and `db` services to ensure they use the same credentials.
 
-**Important:** The `docker/db.env` file is included in `.gitignore` and should not be committed to version control. You should create your own `docker/db.env` file and update the credentials as needed.
+To get started, copy the example environment file:
+
+```bash
+cp docker/db.env.example docker/db.env
+```
+
+You can then customize the values in `docker/db.env` as needed.
