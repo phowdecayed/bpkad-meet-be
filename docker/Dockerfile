@@ -1,15 +1,38 @@
-# Dockerfile for Laravel Application
-
-# Use the official PHP image as a base image
-FROM php:8.4-fpm
+# ---- Stage 1: Build Stage ----
+# Use an alias "builder" for this stage
+FROM php:8.4-fpm AS builder
 
 # Set working directory
 WORKDIR /var/www/html
 
-# Install system dependencies
+# Install build dependencies (add composer's requirements)
 RUN apt-get update && apt-get install -y \
     git \
     unzip \
+    libzip-dev \
+    libpq-dev \
+    curl
+
+# Install PHP extensions needed for composer
+RUN docker-php-ext-install pdo pdo_pgsql pgsql zip
+
+# Install Composer
+COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+
+# Copy only composer files to leverage Docker cache
+COPY database/ database/
+COPY composer.json composer.lock ./
+
+# Install dependencies
+RUN composer install --no-interaction --no-plugins --no-scripts --prefer-dist --no-dev
+
+# --- Stage 2: Final Application Stage ---
+FROM php:8.4-fpm
+
+WORKDIR /var/www/html
+
+# Install only production system dependencies
+RUN apt-get update && apt-get install -y \
     libpq-dev \
     libpng-dev \
     libjpeg62-turbo-dev \
@@ -17,35 +40,22 @@ RUN apt-get update && apt-get install -y \
     locales \
     zip \
     jpegoptim optipng pngquant gifsicle \
-    vim \
     libzip-dev \
-    curl \
     libonig-dev \
-    libssl-dev
+    libssl-dev \
+  && apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# Clear cache
-RUN apt-get clean && rm -rf /var/lib/apt/lists/*
-
-# Install PHP extensions
+# Install production PHP extensions
 RUN docker-php-ext-install pdo pdo_pgsql pgsql mbstring exif pcntl bcmath gd zip
 RUN pecl install redis && docker-php-ext-enable redis
 
-# Install Composer
-COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
-
-# Copy existing application directory contents
+# Copy the application code AND vendor files from the builder stage
+COPY --from=builder /var/www/html/vendor /var/www/html/vendor
 COPY . .
 
-RUN mkdir -p /var/www/html/storage/framework/sessions \
-             /var/www/html/storage/framework/views \
-             /var/www/html/storage/framework/cache \
-             /var/www/html/storage/logs \
-             /var/www/html/bootstrap/cache
-
-# Copy existing application directory permissions
+# Set correct permissions. This is crucial for when you use named volumes.
 RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
 
-# Expose port 9000 and start php-fpm server
+# Expose port and start server
 EXPOSE 9000
 CMD ["php-fpm"]
-
