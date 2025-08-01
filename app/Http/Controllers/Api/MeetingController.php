@@ -18,7 +18,7 @@ use Illuminate\Validation\Rule;
 class MeetingController extends Controller
 {
     use AuthorizesRequests;
-    
+
     protected $meetingService;
 
     public function __construct(MeetingService $meetingService)
@@ -52,7 +52,7 @@ class MeetingController extends Controller
         if ($request->has('start_time')) {
             $query->whereDate('start_time', $request->input('start_time'));
         }
-        
+
         if ($request->has('location')) {
             $query->whereHas('location', function ($q) use ($request) {
                 $q->where('name', 'like', '%' . $request->input('location') . '%');
@@ -130,7 +130,7 @@ class MeetingController extends Controller
         return validator($data, [
             'topic' => 'required|string|max:255',
             'description' => 'nullable|string',
-            'start_time' => ['required', 'date', new NoTimeConflict],
+            'start_time' => ['required', 'date'],
             'duration' => 'required|integer|min:1',
             'type' => ['required', Rule::in(['online', 'offline', 'hybrid'])],
             'location_id' => [
