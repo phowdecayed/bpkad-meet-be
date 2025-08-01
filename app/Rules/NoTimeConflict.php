@@ -42,11 +42,19 @@ class NoTimeConflict implements InvokableRule, DataAwareRule
         $endTime = $startTime->copy()->addMinutes($duration);
         $type = $this->data['type'] ?? null;
         $locationId = $this->data['location_id'] ?? null;
+        $zoomMeetingId = $this->data['zoom_meeting_id'] ?? null;
 
         // Location conflict check (for offline and hybrid meetings)
         if (in_array($type, ['offline', 'hybrid']) && $locationId) {
             if ($this->isLocationConflict($locationId, $startTime, $endTime)) {
                 $fail('The selected time slot conflicts with another meeting at the same location.');
+            }
+        }
+
+        // Zoom conflict check (for online and hybrid meetings)
+        if (in_array($type, ['online', 'hybrid']) && $zoomMeetingId) {
+            if ($this->isZoomConflict($zoomMeetingId, $startTime, $endTime)) {
+                $fail('The selected time slot conflicts with another meeting in the same Zoom account.');
             }
         }
     }
@@ -64,7 +72,7 @@ class NoTimeConflict implements InvokableRule, DataAwareRule
             case 'mysql':
                 return 'DATE_ADD(start_time, INTERVAL duration MINUTE)';
             case 'pgsql':
-                return "start_time + (duration * interval '1 minute')";
+                return "(start_time + (duration * interval '1 minute'))";
             default:
                 // Fallback for other SQL dialects, may need adjustment
                 return 'DATE_ADD(start_time, INTERVAL duration MINUTE)';
@@ -82,6 +90,23 @@ class NoTimeConflict implements InvokableRule, DataAwareRule
             ->where(function ($query) use ($startTime, $endTime, $endTimeExpression) {
                 $query->where('start_time', '<', $endTime)
                       ->where(DB::raw($endTimeExpression), '>', $startTime);
+            })
+            ->exists();
+    }
+
+    /**
+     * Check for a Zoom meeting conflict.
+     */
+    private function isZoomConflict(int $zoomMeetingId, Carbon $startTime, Carbon $endTime): bool
+    {
+        $endTimeExpression = $this->getEndTimeExpression();
+
+        return Meeting::whereHas('zoomMeeting', function ($query) use ($zoomMeetingId) {
+            $query->where('setting_id', $zoomMeetingId);
+        })
+            ->where(function ($query) use ($startTime, $endTime, $endTimeExpression) {
+                $query->where('start_time', '<', $endTime)
+                    ->where(DB::raw($endTimeExpression), '>', $startTime);
             })
             ->exists();
     }
