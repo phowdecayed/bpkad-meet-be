@@ -59,39 +59,25 @@ class NoTimeConflict implements InvokableRule, DataAwareRule
         }
     }
 
-    /**
-     * Get the database-specific expression for calculating a meeting's end time.
-     */
-    private function getEndTimeExpression(): string
-    {
-        $driver = DB::connection()->getDriverName();
-
-        switch ($driver) {
-            case 'sqlite':
-                return "datetime(start_time, '+' || duration || ' minutes')";
-            case 'mysql':
-                return 'DATE_ADD(start_time, INTERVAL duration MINUTE)';
-            case 'pgsql':
-                return "(start_time + (duration * interval '1 minute'))";
-            default:
-                // Fallback for other SQL dialects, may need adjustment
-                return 'DATE_ADD(start_time, INTERVAL duration MINUTE)';
-        }
-    }
+    
 
     /**
      * Check for a location conflict.
      */
     private function isLocationConflict(int $locationId, Carbon $startTime, Carbon $endTime): bool
     {
-        $endTimeExpression = $this->getEndTimeExpression();
+        $conflictingMeetings = Meeting::where('location_id', $locationId)
+            ->where('start_time', '<', $endTime)
+            ->get();
 
-        return Meeting::where('location_id', $locationId)
-            ->where(function ($query) use ($startTime, $endTime, $endTimeExpression) {
-                $query->where('start_time', '<', $endTime)
-                      ->where(DB::raw($endTimeExpression), '>', $startTime);
-            })
-            ->exists();
+        foreach ($conflictingMeetings as $meeting) {
+            $existingEndTime = Carbon::parse($meeting->start_time)->addMinutes($meeting->duration);
+            if ($existingEndTime > $startTime) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**
@@ -99,15 +85,19 @@ class NoTimeConflict implements InvokableRule, DataAwareRule
      */
     private function isZoomConflict(int $zoomMeetingId, Carbon $startTime, Carbon $endTime): bool
     {
-        $endTimeExpression = $this->getEndTimeExpression();
-
-        return Meeting::whereHas('zoomMeeting', function ($query) use ($zoomMeetingId) {
+        $conflictingMeetings = Meeting::whereHas('zoomMeeting', function ($query) use ($zoomMeetingId) {
             $query->where('setting_id', $zoomMeetingId);
         })
-            ->where(function ($query) use ($startTime, $endTime, $endTimeExpression) {
-                $query->where('start_time', '<', $endTime)
-                    ->where(DB::raw($endTimeExpression), '>', $startTime);
-            })
-            ->exists();
+            ->where('start_time', '<', $endTime)
+            ->get();
+
+        foreach ($conflictingMeetings as $meeting) {
+            $existingEndTime = Carbon::parse($meeting->start_time)->addMinutes($meeting->duration);
+            if ($existingEndTime > $startTime) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }
