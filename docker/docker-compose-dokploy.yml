@@ -13,4 +13,4 @@ services:
 
 networks:
   dokploy-network:
-    driver: overlay
+    external: true
