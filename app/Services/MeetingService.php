@@ -72,16 +72,20 @@ class MeetingService
 
                 $selectedSetting = null;
                 foreach ($zoomSettings as $setting) {
-                    $conflictingMeetingsCount = Meeting::whereHas('zoomMeeting', function ($query) use ($setting) {
+                    // Get all meetings for this setting and check conflicts in PHP
+                    $existingMeetings = Meeting::whereHas('zoomMeeting', function ($query) use ($setting) {
                         $query->where('setting_id', $setting->id);
                     })
-                    ->where(function ($query) use ($startTime, $endTime) {
-                        $query->where(function ($q) use ($startTime, $endTime) {
-                            $q->where('start_time', '<', $endTime)
-                              ->whereRaw('start_time + (duration * interval \'1 minute\') > ?', [$startTime]);
-                        });
-                    })
-                    ->count();
+                    ->where('start_time', '<', $endTime)
+                    ->get(['id', 'start_time', 'duration']);
+
+                    $conflictingMeetingsCount = 0;
+                    foreach ($existingMeetings as $existingMeeting) {
+                        $existingEndTime = Carbon::parse($existingMeeting->start_time)->addMinutes($existingMeeting->duration);
+                        if ($existingEndTime > $startTime) {
+                            $conflictingMeetingsCount++;
+                        }
+                    }
 
                     if ($conflictingMeetingsCount < 2) {
                         $selectedSetting = $setting;
