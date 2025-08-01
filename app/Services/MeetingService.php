@@ -78,7 +78,7 @@ class MeetingService
                     ->where(function ($query) use ($startTime, $endTime) {
                         $query->where(function ($q) use ($startTime, $endTime) {
                             $q->where('start_time', '<', $endTime)
-                              ->whereRaw('start_time + INTERVAL \'1 minute\' * duration > ?', [$startTime]);
+                              ->whereRaw('start_time + (duration * interval \'1 minute\') > ?', [$startTime]);
                         });
                     })
                     ->count();
