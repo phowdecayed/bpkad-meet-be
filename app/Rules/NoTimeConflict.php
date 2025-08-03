@@ -7,9 +7,8 @@ use Closure;
 use Illuminate\Contracts\Validation\DataAwareRule;
 use Illuminate\Contracts\Validation\InvokableRule;
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\DB;
 
-class NoTimeConflict implements InvokableRule, DataAwareRule
+class NoTimeConflict implements DataAwareRule, InvokableRule
 {
     /**
      * All of the data under validation.
@@ -58,8 +57,6 @@ class NoTimeConflict implements InvokableRule, DataAwareRule
             }
         }
     }
-
-    
 
     /**
      * Check for a location conflict.

@@ -4,8 +4,8 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
+use Spatie\Permission\Models\Role;
 
 class RoleController extends Controller
 {
@@ -28,12 +28,12 @@ class RoleController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'name' => 'required|string|unique:roles,name'
+            'name' => 'required|string|unique:roles,name',
         ]);
 
         $role = Role::create([
             'name' => $request->name,
-            'guard_name' => 'web' // Explicitly set the guard
+            'guard_name' => 'web', // Explicitly set the guard
         ]);
 
         return response()->json($role, 201);
@@ -53,7 +53,7 @@ class RoleController extends Controller
     public function update(Request $request, Role $role)
     {
         $request->validate([
-            'name' => 'required|string|unique:roles,name,' . $role->id
+            'name' => 'required|string|unique:roles,name,'.$role->id,
         ]);
 
         $role->update(['name' => $request->name]);
@@ -78,7 +78,7 @@ class RoleController extends Controller
     public function assignPermission(Request $request, Role $role)
     {
         $request->validate([
-            'permission' => 'required|string|exists:permissions,name'
+            'permission' => 'required|string|exists:permissions,name',
         ]);
 
         $role->givePermissionTo($request->permission);
@@ -92,7 +92,7 @@ class RoleController extends Controller
     public function revokePermission(Request $request, Role $role)
     {
         $request->validate([
-            'permission' => 'required|string|exists:permissions,name'
+            'permission' => 'required|string|exists:permissions,name',
         ]);
 
         $role->revokePermissionTo($request->permission);

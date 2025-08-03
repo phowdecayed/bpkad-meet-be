@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 class ZoomController extends Controller
 {
     protected $zoomService;
+
     protected $meetingService;
 
     public function __construct(ZoomService $zoomService, MeetingService $meetingService)
@@ -56,7 +57,7 @@ class ZoomController extends Controller
     {
         $meetingId = $request->input('meetingId');
 
-        if (!$meetingId) {
+        if (! $meetingId) {
             return response()->json(['error' => 'meetingId parameter is required.'], 400);
         }
 
@@ -66,6 +67,7 @@ class ZoomController extends Controller
             if ($response->successful()) {
                 return response()->json(['message' => 'Meeting deleted successfully.'], 200);
             }
+
             return response()->json($response->json(), $response->status());
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
@@ -87,6 +89,7 @@ class ZoomController extends Controller
                 // Otherwise, list all meetings for the user.
                 $response = $this->zoomService->listMeetings();
             }
+
             return response()->json($response->json(), $response->status());
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
@@ -100,6 +103,7 @@ class ZoomController extends Controller
     {
         try {
             $response = $this->zoomService->getMeetingSummary($meetingUuid);
+
             return response()->json($response->json(), $response->status());
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
@@ -113,12 +117,13 @@ class ZoomController extends Controller
     {
         $meetingId = $request->input('meetingId');
 
-        if (!$meetingId) {
+        if (! $meetingId) {
             return response()->json(['error' => 'meetingId parameter is required.'], 400);
         }
 
         try {
             $response = $this->zoomService->getPastMeetingDetails($meetingId);
+
             return response()->json($response->json(), $response->status());
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
@@ -133,7 +138,7 @@ class ZoomController extends Controller
         $meetingId = $request->input('meetingId');
         $data = $request->except('meetingId');
 
-        if (!$meetingId) {
+        if (! $meetingId) {
             return response()->json(['error' => 'meetingId parameter is required.'], 400);
         }
 
@@ -143,6 +148,7 @@ class ZoomController extends Controller
             if ($response->successful()) {
                 return response()->json(['message' => 'Meeting updated successfully.'], 200);
             }
+
             return response()->json($response->json(), $response->status());
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);

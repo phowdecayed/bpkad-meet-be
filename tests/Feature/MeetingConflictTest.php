@@ -6,7 +6,6 @@ use App\Models\Meeting;
 use App\Models\MeetingLocation;
 use App\Models\Setting;
 use App\Models\User;
-use App\Services\ZoomService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Http;
 use Spatie\Permission\Models\Permission;
@@ -18,6 +17,7 @@ class MeetingConflictTest extends TestCase
     use RefreshDatabase;
 
     protected $user;
+
     protected $location;
 
     protected function setUp(): void

@@ -19,6 +19,7 @@ class UserController extends Controller
     {
         $this->authorize('viewAny', User::class);
         $users = User::with('roles')->latest()->paginate();
+
         return UserResource::collection($users);
     }
 
@@ -64,7 +65,7 @@ class UserController extends Controller
     public function changeEmail(Request $request)
     {
         $validated = $request->validate([
-            'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email,' . Auth::id()],
+            'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email,'.Auth::id()],
         ]);
 
         $request->user()->update($validated);

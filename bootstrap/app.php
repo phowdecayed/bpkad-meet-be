@@ -17,7 +17,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'permission' => \Spatie\Permission\Middleware\PermissionMiddleware::class,
             'role_or_permission' => \Spatie\Permission\Middleware\RoleOrPermissionMiddleware::class,
         ]);
-        
+
         $middleware->statefulApi();
     })
     ->withExceptions(function (Exceptions $exceptions) {
@@ -45,6 +45,7 @@ return Application::configure(basePath: dirname(__DIR__))
                 if ($e instanceof \Spatie\Permission\Exceptions\UnauthorizedException) {
                     $message = 'You do not have the required permissions for this action.';
                 }
+
                 return response()->json(['message' => $message], 403);
             }
         });
@@ -55,6 +56,7 @@ return Application::configure(basePath: dirname(__DIR__))
                 $message = $e->getPrevious() instanceof \Illuminate\Database\Eloquent\ModelNotFoundException
                     ? 'The requested resource was not found.'
                     : 'Endpoint not found.';
+
                 return response()->json(['message' => $message], 404);
             }
         });
@@ -64,7 +66,7 @@ return Application::configure(basePath: dirname(__DIR__))
             if ($request->is('api/*')) {
                 // For production, hide detailed errors. For debug, show them.
                 $message = config('app.debug') ? $e->getMessage() : 'Server Error';
-                
+
                 // Get status code from exception if available, otherwise default to 500
                 $statusCode = method_exists($e, 'getStatusCode') ? $e->getStatusCode() : 500;
                 if ($statusCode < 400 || $statusCode > 599) {

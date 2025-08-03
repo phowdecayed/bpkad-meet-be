@@ -6,13 +6,11 @@ use App\Models\Meeting;
 use App\Models\Setting;
 use App\Models\User;
 use App\Models\ZoomMeeting;
-use App\Services\ZoomService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\Http;
+use PHPUnit\Framework\Attributes\Test;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
-use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class MeetingCreationTest extends TestCase
@@ -20,7 +18,9 @@ class MeetingCreationTest extends TestCase
     use RefreshDatabase;
 
     protected $organizer;
+
     protected $zoomSetting1;
+
     protected $zoomSetting2;
 
     protected function setUp(): void
@@ -110,7 +110,7 @@ class MeetingCreationTest extends TestCase
         $response->assertStatus(201);
         $this->assertDatabaseHas('meetings', ['topic' => 'Meeting on Second Credential']);
         $newMeeting = Meeting::where('topic', 'Meeting on Second Credential')->first();
-        
+
         // Verify it's on the second credential
         $this->assertNotNull($newMeeting->zoomMeeting);
         $this->assertEquals($this->zoomSetting2->id, $newMeeting->zoomMeeting->setting_id);

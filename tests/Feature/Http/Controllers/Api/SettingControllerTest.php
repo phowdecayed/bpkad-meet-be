@@ -6,16 +6,17 @@ use App\Models\Setting;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
+use PHPUnit\Framework\Attributes\Test;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 use Tests\TestCase;
-use PHPUnit\Framework\Attributes\Test;
 
 class SettingControllerTest extends TestCase
 {
     use RefreshDatabase, WithFaker;
 
     protected User $adminUser;
+
     protected User $basicUser;
 
     protected function setUp(): void

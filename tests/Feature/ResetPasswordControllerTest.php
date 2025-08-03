@@ -2,12 +2,11 @@
 
 namespace Tests\Feature;
 
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
-use Tests\TestCase;
 use App\Models\User;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Password;
 use PHPUnit\Framework\Attributes\Test;
+use Tests\TestCase;
 
 class ResetPasswordControllerTest extends TestCase
 {
@@ -47,9 +46,9 @@ class ResetPasswordControllerTest extends TestCase
                 'message' => 'This password reset token is invalid.',
                 'errors' => [
                     'token' => [
-                        'This password reset token is invalid.'
-                    ]
-                ]
+                        'This password reset token is invalid.',
+                    ],
+                ],
             ]);
     }
 }

@@ -2,9 +2,9 @@
 
 namespace App\Providers;
 
-use Illuminate\Support\ServiceProvider;
 use Illuminate\Auth\Notifications\VerifyEmail;
 use Illuminate\Notifications\Messages\MailMessage;
+use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -23,7 +23,7 @@ class AppServiceProvider extends ServiceProvider
     {
         VerifyEmail::toMailUsing(function (object $notifiable, string $url) {
             $frontendUrl = config('app.frontend_url', 'http://localhost:3000');
-            $verifyUrl = $frontendUrl . '/verify-email?url=' . $url;
+            $verifyUrl = $frontendUrl.'/verify-email?url='.$url;
 
             return (new MailMessage)
                 ->subject('Verify Email Address')

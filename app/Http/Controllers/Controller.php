@@ -9,4 +9,3 @@ abstract class Controller
 {
     use AuthorizesRequests, ValidatesRequests;
 }
-

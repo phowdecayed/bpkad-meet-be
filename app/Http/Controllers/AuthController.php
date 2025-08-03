@@ -2,22 +2,18 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Auth\Events\Registered;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
-use App\Models\User;
 use App\Http\Resources\UserResource;
-use Illuminate\Validation\ValidationException;
+use App\Models\User;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Password;
-use Illuminate\Auth\Events\PasswordReset;
+use Illuminate\Validation\ValidationException;
 
 class AuthController extends Controller
 {
     /**
      * Handle a registration request to the application.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
     public function register(Request $request)
@@ -45,7 +41,6 @@ class AuthController extends Controller
     /**
      * Handle a login request to the application.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
     public function login(Request $request)
@@ -74,7 +69,6 @@ class AuthController extends Controller
     /**
      * Handle a forgot password request to the application.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
     public function forgotPassword(Request $request)
@@ -92,12 +86,9 @@ class AuthController extends Controller
         ]);
     }
 
-    
-
     /**
      * Get the authenticated User.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
     public function user(Request $request)
@@ -111,7 +102,6 @@ class AuthController extends Controller
     /**
      * Log the user out of the application.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
     public function logout(Request $request)

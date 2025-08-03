@@ -5,16 +5,17 @@ namespace Tests\Feature\Http\Controllers\Api;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
+use PHPUnit\Framework\Attributes\Test;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 use Tests\TestCase;
-use PHPUnit\Framework\Attributes\Test;
 
 class StatisticControllerTest extends TestCase
 {
     use RefreshDatabase, WithFaker;
 
     protected User $adminUser;
+
     protected User $basicUser;
 
     protected function setUp(): void
@@ -46,7 +47,7 @@ class StatisticControllerTest extends TestCase
                     'meeting_trends' => ['by_type'],
                     'leaderboards' => ['top_organizers', 'top_locations'],
                     'charts' => ['meetings_by_month'],
-                ]
+                ],
             ]);
     }
 

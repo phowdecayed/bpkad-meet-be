@@ -3,12 +3,9 @@
 namespace App\Notifications;
 
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 use Illuminate\Support\Facades\URL;
-use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\Config;
 
 class VerifyEmailNotification extends Notification
 {
@@ -63,7 +60,7 @@ class VerifyEmailNotification extends Notification
         $id = $notifiable->getKey();
         $hash = sha1($notifiable->getEmailForVerification());
 
-        return config('app.frontend_url') . "/email/verify?id={$id}&hash={$hash}";
+        return config('app.frontend_url')."/email/verify?id={$id}&hash={$hash}";
     }
 
     /**

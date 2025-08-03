@@ -2,21 +2,17 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Password;
-use Illuminate\Support\Facades\Hash;
-use App\Models\User;
 use Illuminate\Auth\Events\PasswordReset;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Password;
 use Illuminate\Validation\ValidationException;
 
 class ResetPasswordController extends Controller
 {
-    
-
     /**
      * Handle a reset password request to the application.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
     public function reset(Request $request)
@@ -31,7 +27,7 @@ class ResetPasswordController extends Controller
             $request->only('email', 'password', 'password_confirmation', 'token'),
             function ($user, $password) {
                 $user->forceFill([
-                    'password' => Hash::make($password)
+                    'password' => Hash::make($password),
                 ])->save();
 
                 // Revoke all existing tokens

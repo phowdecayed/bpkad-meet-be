@@ -4,7 +4,6 @@ namespace App\Services;
 
 use App\Models\Meeting;
 use App\Models\Setting;
-use App\Models\ZoomMeeting;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
@@ -21,8 +20,6 @@ class MeetingService
     /**
      * Create a new meeting (online, offline, or hybrid).
      *
-     * @param array $data
-     * @return Meeting
      * @throws \Exception
      */
     public function createMeeting(array $data): Meeting
@@ -53,7 +50,7 @@ class MeetingService
             ]);
 
             // 3. If participants are included, attach them to the meeting
-            if (!empty($data['participants'])) {
+            if (! empty($data['participants'])) {
                 $meeting->participants()->sync($data['participants']);
             }
 
@@ -64,7 +61,7 @@ class MeetingService
 
                 if ($zoomSettings->isEmpty()) {
                     throw ValidationException::withMessages([
-                        'zoom_api' => 'Zoom integration settings are not configured.'
+                        'zoom_api' => 'Zoom integration settings are not configured.',
                     ]);
                 }
 
@@ -76,8 +73,8 @@ class MeetingService
                     $existingMeetings = Meeting::whereHas('zoomMeeting', function ($query) use ($setting) {
                         $query->where('setting_id', $setting->id);
                     })
-                    ->where('start_time', '<', $endTime)
-                    ->get(['id', 'start_time', 'duration']);
+                        ->where('start_time', '<', $endTime)
+                        ->get(['id', 'start_time', 'duration']);
 
                     $conflictingMeetingsCount = 0;
                     foreach ($existingMeetings as $existingMeeting) {
@@ -93,9 +90,9 @@ class MeetingService
                     }
                 }
 
-                if (!$selectedSetting) {
+                if (! $selectedSetting) {
                     throw ValidationException::withMessages([
-                        'zoom_api' => 'All available Zoom accounts are at their maximum concurrent meeting limit for the selected time.'
+                        'zoom_api' => 'All available Zoom accounts are at their maximum concurrent meeting limit for the selected time.',
                     ]);
                 }
 
@@ -120,10 +117,10 @@ class MeetingService
                     $selectedSetting->id
                 );
 
-                if (!$zoomResponse->successful()) {
+                if (! $zoomResponse->successful()) {
                     // If Zoom API call fails, roll back the transaction
                     throw ValidationException::withMessages([
-                        'zoom_api' => 'Failed to create Zoom meeting: ' . $zoomResponse->body()
+                        'zoom_api' => 'Failed to create Zoom meeting: '.$zoomResponse->body(),
                     ]);
                 }
 
@@ -140,9 +137,6 @@ class MeetingService
 
     /**
      * Delete a meeting.
-     *
-     * @param Meeting $meeting
-     * @return void
      */
     public function deleteMeeting(Meeting $meeting): void
     {
@@ -150,7 +144,7 @@ class MeetingService
         if ($meeting->zoomMeeting) {
             $zoomSetting = $meeting->zoomMeeting->setting;
 
-            if (!$zoomSetting) {
+            if (! $zoomSetting) {
                 // Fallback to the first available setting if the associated one is not found
                 $zoomSetting = Setting::where('group', 'zoom')->first();
             }
@@ -174,10 +168,6 @@ class MeetingService
 
     /**
      * Update a meeting.
-     *
-     * @param Meeting $meeting
-     * @param array $data
-     * @return Meeting
      */
     public function updateMeeting(Meeting $meeting, array $data): Meeting
     {
@@ -204,7 +194,7 @@ class MeetingService
             if ($meeting->zoomMeeting && in_array($meeting->type, ['online', 'hybrid'])) {
                 $zoomSetting = $meeting->zoomMeeting->setting;
 
-                if (!$zoomSetting) {
+                if (! $zoomSetting) {
                     // Fallback to the first available setting if the associated one is not found
                     $zoomSetting = Setting::where('group', 'zoom')->first();
                 }
@@ -227,13 +217,9 @@ class MeetingService
     /**
      * Check for scheduling conflicts for a given location and time.
      *
-     * @param int $locationId
-     * @param string $startTime
-     * @param int $duration
-     * @param int|null $excludeMeetingId
      * @throws ValidationException
      */
-    private function checkForLocationConflict(int $locationId, string $startTime, int $duration, int $excludeMeetingId = null): void
+    private function checkForLocationConflict(int $locationId, string $startTime, int $duration, ?int $excludeMeetingId = null): void
     {
         $newStartTime = Carbon::parse($startTime);
         $newEndTime = $newStartTime->copy()->addMinutes($duration);
@@ -254,7 +240,7 @@ class MeetingService
             // Check for overlap
             if ($newStartTime < $existingEndTime && $newEndTime > $existingStartTime) {
                 throw ValidationException::withMessages([
-                    'location_id' => 'This location is already booked for the selected time slot.'
+                    'location_id' => 'This location is already booked for the selected time slot.',
                 ]);
             }
         }

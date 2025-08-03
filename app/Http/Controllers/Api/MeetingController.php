@@ -41,12 +41,12 @@ class MeetingController extends Controller
             // Regular users can only see meetings they organize or are invited to
             $query->where(function ($q) use ($user) {
                 $q->where('organizer_id', $user->id)
-                  ->orWhereHas('participants', fn($subQ) => $subQ->where('user_id', $user->id));
+                    ->orWhereHas('participants', fn ($subQ) => $subQ->where('user_id', $user->id));
             });
         }
 
         if ($request->has('topic')) {
-            $query->where('topic', 'like', '%' . $request->input('topic') . '%');
+            $query->where('topic', 'like', '%'.$request->input('topic').'%');
         }
 
         if ($request->has('start_time')) {
@@ -55,7 +55,7 @@ class MeetingController extends Controller
 
         if ($request->has('location')) {
             $query->whereHas('location', function ($q) use ($request) {
-                $q->where('name', 'like', '%' . $request->input('location') . '%');
+                $q->where('name', 'like', '%'.$request->input('location').'%');
             });
         }
 
@@ -64,6 +64,7 @@ class MeetingController extends Controller
         }
 
         $perPage = $request->input('per_page', 15);
+
         return MeetingListItemResource::collection($query->latest()->paginate($perPage));
     }
 
@@ -121,9 +122,6 @@ class MeetingController extends Controller
 
     /**
      * Validate a store request.
-     *
-     * @param array $data
-     * @return array
      */
     public function validateStoreRequest(array $data): array
     {
@@ -151,6 +149,7 @@ class MeetingController extends Controller
     public function show(Meeting $meeting)
     {
         $this->authorize('view', $meeting);
+
         return new MeetingResource($meeting->load(['organizer', 'location', 'zoomMeeting', 'participants']));
     }
 
@@ -192,6 +191,7 @@ class MeetingController extends Controller
     public function listParticipants(Meeting $meeting)
     {
         $this->authorize('view', $meeting);
+
         return UserResource::collection($meeting->participants);
     }
 

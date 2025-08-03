@@ -3,15 +3,14 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
-use Illuminate\Http\Request;
 use Illuminate\Auth\Events\Verified;
+use Illuminate\Http\Request;
 
 class VerificationController extends Controller
 {
     /**
      * Mark the authenticated user's email address as verified.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\JsonResponse
      */
     public function verify(Request $request, $id)
@@ -36,7 +35,6 @@ class VerificationController extends Controller
     /**
      * Resend the email verification notification.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\JsonResponse
      */
     public function resend(Request $request)

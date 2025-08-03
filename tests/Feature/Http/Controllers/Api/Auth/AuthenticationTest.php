@@ -4,9 +4,9 @@ namespace Tests\Feature\Http\Controllers\Api\Auth;
 
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Spatie\Permission\Models\Role;
-use Spatie\Permission\Models\Permission;
 use PHPUnit\Framework\Attributes\Test;
+use Spatie\Permission\Models\Permission;
+use Spatie\Permission\Models\Role;
 use Tests\TestCase;
 
 class AuthenticationTest extends TestCase
@@ -14,6 +14,7 @@ class AuthenticationTest extends TestCase
     use RefreshDatabase;
 
     protected $adminUser;
+
     protected $basicUser;
 
     protected function setUp(): void
@@ -54,9 +55,9 @@ class AuthenticationTest extends TestCase
                     'created_at',
                     'updated_at',
                     'roles' => [
-                        '*' => ['id', 'name']
-                    ]
-                ]
+                        '*' => ['id', 'name'],
+                    ],
+                ],
             ])
             ->assertJsonFragment([
                 'name' => 'Test User',
@@ -105,11 +106,11 @@ class AuthenticationTest extends TestCase
                             'id',
                             'name',
                             'permissions' => [
-                                '*' => ['id', 'name']
-                            ]
-                        ]
-                    ]
-                ]
+                                '*' => ['id', 'name'],
+                            ],
+                        ],
+                    ],
+                ],
             ])
             ->assertJsonMissingPath('data.roles.0.pivot')
             ->assertJsonMissingPath('data.roles.0.guard_name')

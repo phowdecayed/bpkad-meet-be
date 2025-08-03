@@ -1,19 +1,17 @@
 <?php
 
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\AuthController;
-use App\Http\Controllers\VerificationController;
-use App\Http\Controllers\Api\ZoomController;
-use App\Http\Controllers\Api\MeetingLocationController;
 use App\Http\Controllers\Api\MeetingController;
-use App\Http\Controllers\Api\UserController;
-use App\Http\Controllers\Api\RoleController;
+use App\Http\Controllers\Api\MeetingLocationController;
 use App\Http\Controllers\Api\PermissionController;
+use App\Http\Controllers\Api\RoleController;
 use App\Http\Controllers\Api\SettingController;
 use App\Http\Controllers\Api\StatisticController;
-
+use App\Http\Controllers\Api\UserController;
+use App\Http\Controllers\Api\ZoomController;
+use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ResetPasswordController;
+use App\Http\Controllers\VerificationController;
+use Illuminate\Support\Facades\Route;
 
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/forgot-password', [AuthController::class, 'forgotPassword'])->name('password.email');
@@ -74,7 +72,6 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Statistics
     Route::get('/statistics/dashboard', StatisticController::class)->middleware('permission:view meetings');
-
 
     // Resend Verification Email
     Route::post('/email/verification-notification', [VerificationController::class, 'resend'])

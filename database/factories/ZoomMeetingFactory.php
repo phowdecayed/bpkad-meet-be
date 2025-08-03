@@ -2,7 +2,6 @@
 
 namespace Database\Factories;
 
-use App\Models\Meeting;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -20,7 +19,7 @@ class ZoomMeetingFactory extends Factory
         return [
             'zoom_id' => $this->faker->unique()->randomNumber(8),
             'uuid' => $this->faker->uuid,
-            'host_id' => 'host_' . $this->faker->uuid,
+            'host_id' => 'host_'.$this->faker->uuid,
             'host_email' => $this->faker->safeEmail,
             'type' => 2,
             'status' => 'waiting',

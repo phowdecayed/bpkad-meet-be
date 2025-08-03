@@ -3,15 +3,18 @@
 namespace App\Services;
 
 use App\Models\ZoomMeeting;
+use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
-use Illuminate\Http\Client\Response;
 
 class ZoomService
 {
     protected $clientId;
+
     protected $clientSecret;
+
     protected $accountId;
+
     protected $baseUrl = 'https://api.zoom.us/v2';
 
     public function __construct($clientId = null, $clientSecret = null, $accountId = null)
@@ -31,18 +34,18 @@ class ZoomService
         $this->accountId = $accountId;
 
         // Forget the token to force re-authentication with new credentials
-        Cache::forget('zoom_access_token_' . $this->accountId);
+        Cache::forget('zoom_access_token_'.$this->accountId);
 
         return $this;
     }
-
 
     /**
      * Get the access token from cache or fetch a new one.
      */
     protected function getAccessToken()
     {
-        $cacheKey = 'zoom_access_token_' . $this->accountId;
+        $cacheKey = 'zoom_access_token_'.$this->accountId;
+
         return Cache::remember($cacheKey, 3500, function () {
             return $this->fetchNewAccessToken();
         });
@@ -53,14 +56,14 @@ class ZoomService
      */
     protected function fetchNewAccessToken()
     {
-        if (!$this->clientId || !$this->clientSecret || !$this->accountId) {
+        if (! $this->clientId || ! $this->clientSecret || ! $this->accountId) {
             throw new \Exception('Zoom credentials not configured.');
         }
 
-        $credentials = base64_encode($this->clientId . ':' . $this->clientSecret);
+        $credentials = base64_encode($this->clientId.':'.$this->clientSecret);
 
         $response = Http::withHeaders([
-            'Authorization' => 'Basic ' . $credentials,
+            'Authorization' => 'Basic '.$credentials,
         ])->asForm()->post('https://zoom.us/oauth/token', [
             'grant_type' => 'account_credentials',
             'account_id' => $this->accountId,
@@ -108,6 +111,7 @@ class ZoomService
     {
         Cache::forget('zoom_access_token');
         $this->fetchNewAccessToken();
+
         return response()->json(['message' => 'Zoom authentication successful.']);
     }
 
@@ -151,7 +155,7 @@ class ZoomService
     /**
      * Save the meeting details to the database.
      */
-    protected function saveMeeting(array $data, int $parentMeetingId = null, int $settingId = null): void
+    protected function saveMeeting(array $data, ?int $parentMeetingId = null, ?int $settingId = null): void
     {
         // Find the existing zoom meeting or create a new one
         $zoomMeeting = ZoomMeeting::firstOrNew(['zoom_id' => $data['id']]);

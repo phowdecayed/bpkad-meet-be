@@ -4,10 +4,10 @@ namespace Tests\Feature;
 
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\Test;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 use Tests\TestCase;
-use PHPUnit\Framework\Attributes\Test;
 
 class AuthTest extends TestCase
 {
@@ -23,7 +23,6 @@ class AuthTest extends TestCase
         Role::create(['name' => 'user']);
     }
 
-
     #[Test]
     public function admin_can_register_new_user()
     {
@@ -35,7 +34,7 @@ class AuthTest extends TestCase
             'email' => 'test@example.com',
             'password' => 'password',
             'password_confirmation' => 'password',
-            'role' => 'user'
+            'role' => 'user',
         ]);
 
         $response->assertStatus(201)

@@ -52,7 +52,7 @@ class SettingController extends Controller
     public function update(Request $request, Setting $setting)
     {
         $validated = $request->validate([
-            'name' => 'sometimes|string|unique:settings,name,' . $setting->id,
+            'name' => 'sometimes|string|unique:settings,name,'.$setting->id,
             'group' => 'sometimes|string',
             'payload' => 'sometimes|array',
         ]);

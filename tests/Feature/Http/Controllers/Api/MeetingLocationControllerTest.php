@@ -16,6 +16,7 @@ class MeetingLocationControllerTest extends TestCase
     use RefreshDatabase, WithFaker;
 
     protected User $adminUser;
+
     protected User $basicUser;
 
     protected function setUp(): void
@@ -59,7 +60,7 @@ class MeetingLocationControllerTest extends TestCase
         $data = [
             'name' => $this->faker->company,
             'address' => $this->faker->address,
-            'room_name' => 'Conference Room ' . $this->faker->randomLetter,
+            'room_name' => 'Conference Room '.$this->faker->randomLetter,
             'capacity' => $this->faker->numberBetween(10, 100),
         ];
 

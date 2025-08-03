@@ -44,17 +44,16 @@ class StatisticController extends Controller
                     'meetings_count' => $location->meetings_count,
                 ]);
 
-            $dbDriver = config('database.connections.' . config('database.default') . '.driver');
+            $dbDriver = config('database.connections.'.config('database.default').'.driver');
 
             if ($dbDriver === 'sqlite') {
                 $yearMonthSelect = "strftime('%Y', start_time) as year, strftime('%m', start_time) as month";
             } elseif ($dbDriver === 'pgsql') {
-                $yearMonthSelect = "EXTRACT(YEAR FROM start_time) as year, EXTRACT(MONTH FROM start_time) as month";
+                $yearMonthSelect = 'EXTRACT(YEAR FROM start_time) as year, EXTRACT(MONTH FROM start_time) as month';
             } else {
                 // Default to MySQL syntax
-                $yearMonthSelect = "YEAR(start_time) as year, MONTH(start_time) as month";
+                $yearMonthSelect = 'YEAR(start_time) as year, MONTH(start_time) as month';
             }
-
 
             $meetingsByMonth = Meeting::select(
                 DB::raw($yearMonthSelect),
@@ -88,7 +87,7 @@ class StatisticController extends Controller
                 ],
                 'charts' => [
                     'meetings_by_month' => $meetingsByMonth,
-                ]
+                ],
             ];
         });
 

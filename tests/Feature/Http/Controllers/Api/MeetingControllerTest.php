@@ -5,22 +5,23 @@ namespace Tests\Feature\Http\Controllers\Api;
 use App\Models\Meeting;
 use App\Models\Setting;
 use App\Models\User;
-use App\Models\ZoomMeeting;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
-use Illuminate\Support\Facades\Http;
+use PHPUnit\Framework\Attributes\Test;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 use Tests\TestCase;
-use PHPUnit\Framework\Attributes\Test;
 
 class MeetingControllerTest extends TestCase
 {
     use RefreshDatabase, WithFaker;
 
     protected User $adminUser;
+
     protected User $organizerUser;
+
     protected User $participantUser;
+
     protected User $unrelatedUser;
 
     protected function setUp(): void
@@ -29,7 +30,7 @@ class MeetingControllerTest extends TestCase
 
         // Create permissions
         $permissions = [
-            'view meetings', 'create meetings', 'edit meetings', 'delete meetings'
+            'view meetings', 'create meetings', 'edit meetings', 'delete meetings',
         ];
         foreach ($permissions as $permission) {
             Permission::create(['name' => $permission]);
@@ -48,7 +49,7 @@ class MeetingControllerTest extends TestCase
         // Create a dummy setting for online meeting tests
         Setting::create([
             'name' => 'Test Zoom Account', 'group' => 'zoom',
-            'payload' => ['client_id' => 'test', 'client_secret' => 'test', 'account_id' => 'test']
+            'payload' => ['client_id' => 'test', 'client_secret' => 'test', 'account_id' => 'test'],
         ]);
     }
 
@@ -160,7 +161,7 @@ class MeetingControllerTest extends TestCase
     public function public_calendar_returns_safe_data()
     {
         Meeting::factory()->create();
-        $response = $this->getJson('/api/public/calendar?start_date=' . now()->subDay()->toDateString() . '&end_date=' . now()->addMonths(2)->toDateString());
+        $response = $this->getJson('/api/public/calendar?start_date='.now()->subDay()->toDateString().'&end_date='.now()->addMonths(2)->toDateString());
         $response->assertOk()
             ->assertJsonStructure(['data' => [['id', 'topic', 'start_time']]])
             ->assertJsonMissingPath('data.0.zoom_meeting')

@@ -19,7 +19,7 @@ class MeetingLocationFactory extends Factory
         return [
             'name' => $this->faker->company,
             'address' => $this->faker->address,
-            'room_name' => 'Room ' . $this->faker->numberBetween(100, 500),
+            'room_name' => 'Room '.$this->faker->numberBetween(100, 500),
             'capacity' => $this->faker->numberBetween(5, 50),
         ];
     }
