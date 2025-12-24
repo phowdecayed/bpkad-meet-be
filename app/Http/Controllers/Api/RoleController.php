@@ -7,6 +7,7 @@ use App\Http\Requests\Role\AssignPermissionRequest;
 use App\Http\Requests\Role\RevokePermissionRequest;
 use App\Http\Requests\Role\StoreRoleRequest;
 use App\Http\Requests\Role\UpdateRoleRequest;
+use App\Http\Resources\RoleResource;
 use Spatie\Permission\Models\Role;
 
 class RoleController extends Controller
@@ -16,7 +17,7 @@ class RoleController extends Controller
      */
     public function index()
     {
-        return Role::with('permissions')->get();
+        return RoleResource::collection(Role::with('permissions')->get());
     }
 
     /**
@@ -29,7 +30,7 @@ class RoleController extends Controller
             'guard_name' => 'web', // Explicitly set the guard
         ]);
 
-        return response()->json($role, 201);
+        return new RoleResource($role);
     }
 
     /**
@@ -37,7 +38,7 @@ class RoleController extends Controller
      */
     public function show(Role $role)
     {
-        return $role->load('permissions');
+        return new RoleResource($role->load('permissions'));
     }
 
     /**
@@ -47,7 +48,7 @@ class RoleController extends Controller
     {
         $role->update(['name' => $request->name]);
 
-        return response()->json($role);
+        return new RoleResource($role);
     }
 
     /**

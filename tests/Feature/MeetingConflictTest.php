@@ -221,6 +221,6 @@ class MeetingConflictTest extends TestCase
 
         // Assert: Check for a validation error
         $response->assertStatus(422)
-            ->assertJsonValidationErrors(['location_id']);
+            ->assertJsonValidationErrors(['start_time']);
     }
 }

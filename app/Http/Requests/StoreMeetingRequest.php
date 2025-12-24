@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Enums\MeetingType;
 use App\Rules\NoTimeConflict;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
@@ -28,10 +29,10 @@ class StoreMeetingRequest extends FormRequest
             'description' => 'nullable|string',
             'start_time' => ['required', 'date', new NoTimeConflict],
             'duration' => 'required|integer|min:1',
-            'type' => ['required', Rule::in(['online', 'offline', 'hybrid'])],
+            'type' => ['required', Rule::enum(MeetingType::class)],
             'location_id' => [
                 'nullable',
-                Rule::requiredIf(fn () => in_array($this->type ?? null, ['offline', 'hybrid'])),
+                Rule::requiredIf(fn () => in_array($this->type ?? null, [MeetingType::OFFLINE->value, MeetingType::HYBRID->value])),
                 'exists:meeting_locations,id',
             ],
             'password' => 'nullable|string|max:10', // Zoom password validation

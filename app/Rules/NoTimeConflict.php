@@ -10,6 +10,13 @@ use Illuminate\Support\Carbon;
 
 class NoTimeConflict implements DataAwareRule, InvokableRule
 {
+    protected $ignoreMeeting;
+
+    public function __construct(?Meeting $ignoreMeeting = null)
+    {
+        $this->ignoreMeeting = $ignoreMeeting;
+    }
+
     /**
      * All of the data under validation.
      *
@@ -37,11 +44,20 @@ class NoTimeConflict implements DataAwareRule, InvokableRule
     public function __invoke(string $attribute, mixed $value, Closure $fail): void
     {
         $startTime = Carbon::parse($value)->utc();
-        $duration = $this->data['duration'] ?? 0;
+
+        // Use data from request or fallback to existing meeting
+        $duration = $this->data['duration'] ?? $this->ignoreMeeting?->duration ?? 0;
+
+        $type = $this->data['type'] ?? $this->ignoreMeeting?->type;
+        // Handle Enum if it comes from the model
+        if ($type instanceof \App\Enums\MeetingType) {
+            $type = $type->value;
+        }
+
+        $locationId = $this->data['location_id'] ?? $this->ignoreMeeting?->location_id;
+        $zoomMeetingId = $this->data['zoom_meeting_id'] ?? $this->ignoreMeeting?->zoomMeeting?->setting_id;
+
         $endTime = $startTime->copy()->addMinutes($duration);
-        $type = $this->data['type'] ?? null;
-        $locationId = $this->data['location_id'] ?? null;
-        $zoomMeetingId = $this->data['zoom_meeting_id'] ?? null;
 
         // Location conflict check (for offline and hybrid meetings)
         if (in_array($type, ['offline', 'hybrid']) && $locationId) {
@@ -63,9 +79,14 @@ class NoTimeConflict implements DataAwareRule, InvokableRule
      */
     private function isLocationConflict(int $locationId, Carbon $startTime, Carbon $endTime): bool
     {
-        $conflictingMeetings = Meeting::where('location_id', $locationId)
-            ->where('start_time', '<', $endTime)
-            ->get();
+        $query = Meeting::where('location_id', $locationId)
+            ->where('start_time', '<', $endTime);
+
+        if ($this->ignoreMeeting) {
+            $query->where('id', '!=', $this->ignoreMeeting->id);
+        }
+
+        $conflictingMeetings = $query->get();
 
         foreach ($conflictingMeetings as $meeting) {
             $existingEndTime = Carbon::parse($meeting->start_time)->addMinutes($meeting->duration);
@@ -82,11 +103,16 @@ class NoTimeConflict implements DataAwareRule, InvokableRule
      */
     private function isZoomConflict(int $zoomMeetingId, Carbon $startTime, Carbon $endTime): bool
     {
-        $conflictingMeetings = Meeting::whereHas('zoomMeeting', function ($query) use ($zoomMeetingId) {
+        $query = Meeting::whereHas('zoomMeeting', function ($query) use ($zoomMeetingId) {
             $query->where('setting_id', $zoomMeetingId);
         })
-            ->where('start_time', '<', $endTime)
-            ->get();
+            ->where('start_time', '<', $endTime);
+
+        if ($this->ignoreMeeting) {
+            $query->where('id', '!=', $this->ignoreMeeting->id);
+        }
+
+        $conflictingMeetings = $query->get();
 
         foreach ($conflictingMeetings as $meeting) {
             $existingEndTime = Carbon::parse($meeting->start_time)->addMinutes($meeting->duration);

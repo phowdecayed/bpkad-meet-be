@@ -43,7 +43,7 @@ class SettingControllerTest extends TestCase
     {
         Setting::factory()->count(3)->create();
         $response = $this->actingAs($this->adminUser)->getJson('/api/settings');
-        $response->assertOk()->assertJsonCount(3);
+        $response->assertOk()->assertJsonCount(3, 'data');
     }
 
     #[Test]

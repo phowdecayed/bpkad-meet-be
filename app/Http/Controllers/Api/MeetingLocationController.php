@@ -3,17 +3,13 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\StoreMeetingLocationRequest;
+use App\Http\Requests\UpdateMeetingLocationRequest;
 use App\Http\Resources\MeetingLocationResource;
 use App\Models\MeetingLocation;
-use Illuminate\Http\Request;
 
 class MeetingLocationController extends Controller
 {
-    public function __construct()
-    {
-        //
-    }
-
     /**
      * Display a listing of the resource.
      */
@@ -25,16 +21,9 @@ class MeetingLocationController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(StoreMeetingLocationRequest $request)
     {
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'address' => 'required|string|max:255',
-            'room_name' => 'nullable|string|max:255',
-            'capacity' => 'nullable|integer|min:1',
-        ]);
-
-        $location = MeetingLocation::create($validated);
+        $location = MeetingLocation::create($request->validated());
 
         return (new MeetingLocationResource($location))
             ->response()
@@ -52,16 +41,9 @@ class MeetingLocationController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, MeetingLocation $meetingLocation)
+    public function update(UpdateMeetingLocationRequest $request, MeetingLocation $meetingLocation)
     {
-        $validated = $request->validate([
-            'name' => 'sometimes|required|string|max:255',
-            'address' => 'sometimes|required|string|max:255',
-            'room_name' => 'nullable|string|max:255',
-            'capacity' => 'nullable|integer|min:1',
-        ]);
-
-        $meetingLocation->update($validated);
+        $meetingLocation->update($request->validated());
 
         return new MeetingLocationResource($meetingLocation);
     }

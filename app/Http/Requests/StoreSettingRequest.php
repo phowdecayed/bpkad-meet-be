@@ -2,10 +2,9 @@
 
 namespace App\Http\Requests;
 
-use App\Rules\NoTimeConflict;
 use Illuminate\Foundation\Http\FormRequest;
 
-class UpdateMeetingRequest extends FormRequest
+class StoreSettingRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -23,12 +22,9 @@ class UpdateMeetingRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'topic' => 'sometimes|required|string|max:255',
-            'description' => 'nullable|string',
-            'start_time' => ['sometimes', 'required', 'date', new NoTimeConflict($this->route('meeting'))],
-            'duration' => 'sometimes|required|integer|min:1',
-            'location_id' => 'nullable|exists:meeting_locations,id',
-            'settings' => 'nullable|array',
+            'name' => 'required|string|unique:settings,name',
+            'group' => 'sometimes|string',
+            'payload' => 'required|array',
         ];
     }
 }

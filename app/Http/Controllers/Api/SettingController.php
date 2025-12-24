@@ -3,6 +3,9 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\StoreSettingRequest;
+use App\Http\Requests\UpdateSettingRequest;
+use App\Http\Resources\SettingResource;
 use App\Models\Setting;
 use Illuminate\Http\Request;
 
@@ -19,23 +22,17 @@ class SettingController extends Controller
             $query->where('group', $request->group);
         }
 
-        return response()->json($query->get());
+        return SettingResource::collection($query->get());
     }
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(StoreSettingRequest $request)
     {
-        $validated = $request->validate([
-            'name' => 'required|string|unique:settings,name',
-            'group' => 'sometimes|string',
-            'payload' => 'required|array',
-        ]);
+        $setting = Setting::create($request->validated());
 
-        $setting = Setting::create($validated);
-
-        return response()->json($setting, 201);
+        return new SettingResource($setting);
     }
 
     /**
@@ -43,23 +40,17 @@ class SettingController extends Controller
      */
     public function show(Setting $setting)
     {
-        return response()->json($setting);
+        return new SettingResource($setting);
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Setting $setting)
+    public function update(UpdateSettingRequest $request, Setting $setting)
     {
-        $validated = $request->validate([
-            'name' => 'sometimes|string|unique:settings,name,'.$setting->id,
-            'group' => 'sometimes|string',
-            'payload' => 'sometimes|array',
-        ]);
+        $setting->update($request->validated());
 
-        $setting->update($validated);
-
-        return response()->json($setting);
+        return new SettingResource($setting);
     }
 
     /**

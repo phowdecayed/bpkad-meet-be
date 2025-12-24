@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\MeetingType;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Carbon;
@@ -22,6 +23,7 @@ class Meeting extends Model
 
     protected $casts = [
         'start_time' => 'datetime',
+        'type' => MeetingType::class,
     ];
 
     protected $with = ['zoomMeeting.setting'];
