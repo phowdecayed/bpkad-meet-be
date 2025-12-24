@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Enums\MeetingType;
 use App\Models\Meeting;
 use App\Models\Setting;
 use Carbon\Carbon;
@@ -28,7 +29,7 @@ class MeetingService
         $startTime = Carbon::parse($data['start_time']);
 
         // 1. Check for location conflicts for offline or hybrid meetings
-        if (in_array($data['type'], ['offline', 'hybrid']) && isset($data['location_id'])) {
+        if (in_array($data['type'], [MeetingType::OFFLINE->value, MeetingType::HYBRID->value]) && isset($data['location_id'])) {
             $this->checkForLocationConflict(
                 $data['location_id'],
                 $startTime,
@@ -55,7 +56,7 @@ class MeetingService
             }
 
             // 4. If the meeting is online or hybrid, create a Zoom meeting
-            if (in_array($data['type'], ['online', 'hybrid'])) {
+            if (in_array($data['type'], [MeetingType::ONLINE->value, MeetingType::HYBRID->value])) {
                 // Find all available zoom credentials from settings
                 $zoomSettings = Setting::where('group', 'zoom')->get();
 
@@ -178,7 +179,10 @@ class MeetingService
         $type = $data['type'] ?? $meeting->type;
 
         // Check for location conflicts if relevant fields are being updated
-        if (in_array($type, ['offline', 'hybrid']) && $locationId) {
+        // Note: type from data is string, type from model is Enum
+        $typeValue = $type instanceof MeetingType ? $type->value : $type;
+
+        if (in_array($typeValue, [MeetingType::OFFLINE->value, MeetingType::HYBRID->value]) && $locationId) {
             $this->checkForLocationConflict(
                 $locationId,
                 $startTime,
@@ -191,7 +195,7 @@ class MeetingService
             $meeting->update($data);
 
             // If the meeting is online or hybrid and has a zoom meeting, update it.
-            if ($meeting->zoomMeeting && in_array($meeting->type, ['online', 'hybrid'])) {
+            if ($meeting->zoomMeeting && in_array($meeting->type, [MeetingType::ONLINE, MeetingType::HYBRID])) {
                 $zoomSetting = $meeting->zoomMeeting->setting;
 
                 if (! $zoomSetting) {
@@ -225,7 +229,7 @@ class MeetingService
         $newEndTime = $newStartTime->copy()->addMinutes($duration);
 
         $query = Meeting::where('location_id', $locationId)
-            ->whereIn('type', ['offline', 'hybrid']);
+            ->whereIn('type', [MeetingType::OFFLINE, MeetingType::HYBRID]);
 
         if ($excludeMeetingId) {
             $query->where('id', '!=', $excludeMeetingId);

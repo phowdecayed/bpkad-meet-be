@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Enums\MeetingType;
 use App\Models\MeetingLocation;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -24,7 +25,7 @@ class MeetingFactory extends Factory
             'description' => $this->faker->paragraph,
             'start_time' => $this->faker->dateTimeBetween('+1 day', '+1 month'),
             'duration' => $this->faker->randomElement([30, 60, 90]),
-            'type' => 'offline', // Default to offline to avoid Zoom API calls
+            'type' => MeetingType::OFFLINE, // Default to offline to avoid Zoom API calls
             'location_id' => MeetingLocation::factory(),
         ];
     }

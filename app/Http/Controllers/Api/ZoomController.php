@@ -2,8 +2,12 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Enums\MeetingType;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreMeetingRequest;
+use App\Http\Requests\Zoom\DeleteMeetingRequest;
+use App\Http\Requests\Zoom\GetMeetingRequest;
+use App\Http\Requests\Zoom\UpdateMeetingRequest;
 use App\Services\MeetingService;
 use App\Services\ZoomService;
 use Illuminate\Http\Request;
@@ -36,13 +40,15 @@ class ZoomController extends Controller
      * [LEGACY] Create a new Zoom meeting.
      * This is an alias for creating a meeting of type 'online' via the core meeting endpoint.
      */
-    public function createMeeting(Request $request)
+    public function createMeeting(StoreMeetingRequest $request)
     {
-        $data = $request->all();
-        $data['type'] = 'online'; // Force the type to online for this legacy route
+        // StoreMeetingRequest already handles validation and strict typing
+        $validated = $request->validated();
 
-        // Use validate from StoreMeetingRequest to ensure consistency
-        $validated = validator($data, (new StoreMeetingRequest)->rules())->validate();
+        // Ensure type matches legacy expectation if needed, or rely on request rule
+        if (! isset($validated['type'])) {
+            $validated['type'] = MeetingType::ONLINE->value;
+        }
 
         $meeting = $this->meetingService->createMeeting($validated);
 
@@ -52,13 +58,9 @@ class ZoomController extends Controller
     /**
      * Delete a Zoom meeting.
      */
-    public function deleteMeeting(Request $request)
+    public function deleteMeeting(DeleteMeetingRequest $request)
     {
-        $meetingId = $request->input('meetingId');
-
-        if (! $meetingId) {
-            return response()->json(['error' => 'meetingId parameter is required.'], 400);
-        }
+        $meetingId = $request->validated()['meetingId'];
 
         try {
             $response = $this->zoomService->deleteMeeting($meetingId);
@@ -76,9 +78,9 @@ class ZoomController extends Controller
     /**
      * Get a specific Zoom meeting or list all meetings.
      */
-    public function getMeeting(Request $request)
+    public function getMeeting(GetMeetingRequest $request)
     {
-        $meetingId = $request->input('meetingId');
+        $meetingId = $request->validated()['meetingId'] ?? null;
 
         try {
             if ($meetingId) {
@@ -112,9 +114,9 @@ class ZoomController extends Controller
     /**
      * Get details for a past Zoom meeting.
      */
-    public function getPastMeetingDetails(Request $request)
+    public function getPastMeetingDetails(GetMeetingRequest $request)
     {
-        $meetingId = $request->input('meetingId');
+        $meetingId = $request->validated()['meetingId'] ?? null;
 
         if (! $meetingId) {
             return response()->json(['error' => 'meetingId parameter is required.'], 400);
@@ -132,14 +134,13 @@ class ZoomController extends Controller
     /**
      * Update a specific Zoom meeting.
      */
-    public function updateMeeting(Request $request)
+    public function updateMeeting(UpdateMeetingRequest $request)
     {
-        $meetingId = $request->input('meetingId');
-        $data = $request->except('meetingId');
-
-        if (! $meetingId) {
-            return response()->json(['error' => 'meetingId parameter is required.'], 400);
-        }
+        $validated = $request->validated();
+        $meetingId = $validated['meetingId'];
+        // Remove meetingId from data sent to Zoom
+        unset($validated['meetingId']);
+        $data = $validated;
 
         try {
             $response = $this->zoomService->updateMeeting($meetingId, $data);
