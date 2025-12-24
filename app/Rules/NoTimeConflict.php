@@ -2,6 +2,7 @@
 
 namespace App\Rules;
 
+use App\Enums\MeetingType;
 use App\Models\Meeting;
 use Closure;
 use Illuminate\Contracts\Validation\DataAwareRule;
@@ -60,14 +61,14 @@ class NoTimeConflict implements DataAwareRule, InvokableRule
         $endTime = $startTime->copy()->addMinutes($duration);
 
         // Location conflict check (for offline and hybrid meetings)
-        if (in_array($type, ['offline', 'hybrid']) && $locationId) {
+        if (in_array($type, [MeetingType::OFFLINE->value, MeetingType::HYBRID->value]) && $locationId) {
             if ($this->isLocationConflict($locationId, $startTime, $endTime)) {
                 $fail('The selected time slot conflicts with another meeting at the same location.');
             }
         }
 
         // Zoom conflict check (for online and hybrid meetings)
-        if (in_array($type, ['online', 'hybrid']) && $zoomMeetingId) {
+        if (in_array($type, [MeetingType::ONLINE->value, MeetingType::HYBRID->value]) && $zoomMeetingId) {
             if ($this->isZoomConflict($zoomMeetingId, $startTime, $endTime)) {
                 $fail('The selected time slot conflicts with another meeting in the same Zoom account.');
             }

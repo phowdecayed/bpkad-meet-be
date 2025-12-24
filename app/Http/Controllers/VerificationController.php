@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use Illuminate\Auth\Events\Verified;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class VerificationController extends Controller
@@ -13,7 +14,7 @@ class VerificationController extends Controller
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function verify(Request $request, $id)
+    public function verify(Request $request, $id): JsonResponse
     {
         $user = User::findOrFail($id);
 
@@ -37,7 +38,7 @@ class VerificationController extends Controller
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function resend(Request $request)
+    public function resend(Request $request): JsonResponse
     {
         if ($request->user()->hasVerifiedEmail()) {
             return response()->json(['message' => 'Email already verified.']);

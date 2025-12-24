@@ -5,6 +5,7 @@ namespace App\Http\Resources;
 use App\Models\Setting;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
+use App\Enums\MeetingType;
 
 class MeetingResource extends JsonResource
 {
@@ -21,7 +22,7 @@ class MeetingResource extends JsonResource
         if (isset($this->host_key)) {
             // This handles the case where the key is attached during creation
             $hostKey = $this->host_key;
-        } elseif (in_array($this->type, ['online', 'hybrid'])) {
+        } elseif (in_array($this->type->value, [MeetingType::ONLINE->value, MeetingType::HYBRID->value])) {
             // This handles fetching the key for existing models
             $zoomSetting = Setting::where('group', 'zoom')->first();
             if ($zoomSetting && isset($zoomSetting->payload['host_key'])) {

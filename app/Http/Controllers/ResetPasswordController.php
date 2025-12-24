@@ -7,6 +7,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Validation\ValidationException;
+use Illuminate\Support\Str;
+use Illuminate\Http\JsonResponse;
 
 class ResetPasswordController extends Controller
 {
@@ -15,7 +17,7 @@ class ResetPasswordController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function reset(Request $request)
+    public function reset(Request $request): JsonResponse // Modified this line
     {
         $request->validate([
             'token' => 'required',
@@ -28,10 +30,12 @@ class ResetPasswordController extends Controller
             function ($user, $password) {
                 $user->forceFill([
                     'password' => Hash::make($password),
-                ])->save();
+                ])->setRememberToken(Str::random(60)); // Modified this line
 
-                // Revoke all existing tokens
-                $user->tokens()->delete();
+                $user->save(); // Added this line
+
+                // Revoke all existing tokens - Removed this comment
+                // $user->tokens()->delete(); - Removed this line
 
                 event(new PasswordReset($user));
             }

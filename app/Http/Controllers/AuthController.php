@@ -3,20 +3,23 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\Auth\LoginRequest;
-use App\Http\Requests\Auth\RegisterRequest;
-use App\Http\Resources\UserResource;
-use App\Models\User;
 use Illuminate\Http\Request;
+use App\Models\User;
+use App\Http\Resources\UserResource;
+use App\Http\Requests\Auth\RegisterRequest;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Password;
+use Illuminate\Auth\Events\Registered;
 use Illuminate\Validation\ValidationException;
+use Illuminate\Support\Facades\Password;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Http\JsonResponse;
 
 class AuthController extends Controller
 {
     /**
      * Handle a registration request to the application.
      */
-    public function register(RegisterRequest $request)
+    public function register(RegisterRequest $request): JsonResponse
     {
         $user = User::create([
             'name' => $request->name,
@@ -28,13 +31,13 @@ class AuthController extends Controller
 
         $user->sendEmailVerificationNotification();
 
-        return new UserResource($user->load('roles'));
+        return (new UserResource($user->load('roles')))->response()->setStatusCode(201);
     }
 
     /**
-     * Handle a login request to the application.
+     * Login user and create token.
      */
-    public function login(LoginRequest $request)
+    public function login(LoginRequest $request): JsonResponse
     {
         $user = User::where('email', $request->email)->first();
 
@@ -53,41 +56,39 @@ class AuthController extends Controller
     }
 
     /**
-     * Handle a forgot password request to the application.
+     * Send password reset email.
      */
-    public function forgotPassword(Request $request)
+    public function forgotPassword(Request $request): JsonResponse
     {
         $request->validate(['email' => 'required|email']);
 
         $status = Password::sendResetLink($request->only('email'));
 
         if ($status === Password::RESET_LINK_SENT) {
-            return response()->json(['message' => __($status)]);
+            return response()->json(['status' => __($status)]);
         }
 
-        throw ValidationException::withMessages([
-            'email' => [__($status)],
-        ]);
+        throw ValidationException::withMessages(['email' => [__($status)]]);
     }
 
     /**
-     * Get the authenticated User.
+     * Get the authenticated user.
      */
-    public function user(Request $request)
+    public function user(Request $request): JsonResponse
     {
         $user = $request->user();
         $user->load('roles.permissions');
 
-        return new UserResource($user);
+        return (new UserResource($user))->response();
     }
 
     /**
-     * Log the user out of the application.
+     * Logout user (revoke the token).
      */
-    public function logout(Request $request)
+    public function logout(Request $request): JsonResponse
     {
         $request->user()->currentAccessToken()->delete();
 
-        return response()->json(['message' => 'Successfully logged out']);
+        return response()->json(['message' => 'Logged out successfully']);
     }
 }
