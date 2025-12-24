@@ -89,11 +89,15 @@ class MeetingCreationTest extends TestCase
     {
         // Arrange: Create 2 active meetings for the first credential
         for ($i = 0; $i < 2; $i++) {
-            $meeting = Meeting::factory()->create(['organizer_id' => $this->organizer->id]);
+            $meeting = Meeting::factory()->create([
+                'organizer_id' => $this->organizer->id,
+                'start_time' => now()->addDay()->subMinutes(30),
+                'duration' => 60,
+            ]);
             ZoomMeeting::factory()->create([
                 'meeting_id' => $meeting->id,
                 'setting_id' => $this->zoomSetting1->id,
-                'start_time' => now()->subMinutes(30),
+                'start_time' => $meeting->start_time,
                 'duration' => 60,
             ]);
         }
@@ -122,11 +126,15 @@ class MeetingCreationTest extends TestCase
         // Arrange: Create 2 active meetings for BOTH credentials
         foreach ([$this->zoomSetting1, $this->zoomSetting2] as $setting) {
             for ($i = 0; $i < 2; $i++) {
-                $meeting = Meeting::factory()->create(['organizer_id' => $this->organizer->id]);
+                $meeting = Meeting::factory()->create([
+                    'organizer_id' => $this->organizer->id,
+                    'start_time' => now()->addDay()->subMinutes(30),
+                    'duration' => 60,
+                ]);
                 ZoomMeeting::factory()->create([
                     'meeting_id' => $meeting->id,
                     'setting_id' => $setting->id,
-                    'start_time' => now()->subMinutes(30),
+                    'start_time' => $meeting->start_time,
                     'duration' => 60,
                 ]);
             }
@@ -143,7 +151,8 @@ class MeetingCreationTest extends TestCase
         // Assert
         $response->assertStatus(422);
         $response->assertJsonValidationErrors('zoom_api');
-        $response->assertJsonPath('errors.zoom_api.0', 'All Zoom accounts are currently busy. Please try again later.');
+        $response->assertJsonPath('errors.zoom_api.0', 'All available Zoom accounts are at their maximum concurrent meeting limit for the selected time.');
+
     }
 
     #[Test]

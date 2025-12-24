@@ -3,17 +3,17 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\StoreMeetingRequest;
+use App\Http\Requests\UpdateMeetingRequest;
 use App\Http\Resources\MeetingListItemResource;
 use App\Http\Resources\MeetingResource;
 use App\Http\Resources\PublicMeetingResource;
 use App\Http\Resources\UserResource;
 use App\Models\Meeting;
 use App\Models\User;
-use App\Rules\NoTimeConflict;
 use App\Services\MeetingService;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
-use Illuminate\Validation\Rule;
 
 class MeetingController extends Controller
 {
@@ -107,10 +107,10 @@ class MeetingController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(StoreMeetingRequest $request)
     {
         $this->authorize('create', Meeting::class);
-        $validated = $this->validateStoreRequest($request->all());
+        $validated = $request->validated();
         $validated['organizer_id'] = auth()->id();
 
         $meeting = $this->meetingService->createMeeting($validated);
@@ -118,29 +118,6 @@ class MeetingController extends Controller
         return (new MeetingResource($meeting->load(['organizer', 'location', 'zoomMeeting', 'participants'])))
             ->response()
             ->setStatusCode(201);
-    }
-
-    /**
-     * Validate a store request.
-     */
-    public function validateStoreRequest(array $data): array
-    {
-        return validator($data, [
-            'topic' => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'start_time' => ['required', 'date', new NoTimeConflict],
-            'duration' => 'required|integer|min:1',
-            'type' => ['required', Rule::in(['online', 'offline', 'hybrid'])],
-            'location_id' => [
-                'nullable',
-                Rule::requiredIf(fn () => in_array($data['type'] ?? null, ['offline', 'hybrid'])),
-                'exists:meeting_locations,id',
-            ],
-            'password' => 'nullable|string|max:10', // Zoom password validation
-            'settings' => 'nullable|array', // For Zoom settings
-            'participants' => 'nullable|array',
-            'participants.*' => 'integer|exists:users,id',
-        ])->validate();
     }
 
     /**
@@ -167,18 +144,11 @@ class MeetingController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Meeting $meeting)
+    public function update(UpdateMeetingRequest $request, Meeting $meeting)
     {
         $this->authorize('update', $meeting);
 
-        $validated = $request->validate([
-            'topic' => 'sometimes|required|string|max:255',
-            'description' => 'nullable|string',
-            'start_time' => 'sometimes|required|date',
-            'duration' => 'sometimes|required|integer|min:1',
-            'location_id' => 'nullable|exists:meeting_locations,id',
-            'settings' => 'nullable|array',
-        ]);
+        $validated = $request->validated();
 
         $updatedMeeting = $this->meetingService->updateMeeting($meeting, $validated);
 
