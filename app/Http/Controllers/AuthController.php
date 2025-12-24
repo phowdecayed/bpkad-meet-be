@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\Auth\LoginRequest;
+use App\Http\Requests\Auth\RegisterRequest;
 use App\Http\Resources\UserResource;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -13,18 +15,9 @@ class AuthController extends Controller
 {
     /**
      * Handle a registration request to the application.
-     *
-     * @return \Illuminate\Http\Response
      */
-    public function register(Request $request)
+    public function register(RegisterRequest $request)
     {
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users',
-            'password' => 'required|string|min:8|confirmed',
-            'role' => 'required|string|exists:roles,name',
-        ]);
-
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
@@ -40,16 +33,9 @@ class AuthController extends Controller
 
     /**
      * Handle a login request to the application.
-     *
-     * @return \Illuminate\Http\Response
      */
-    public function login(Request $request)
+    public function login(LoginRequest $request)
     {
-        $request->validate([
-            'email' => 'required|email',
-            'password' => 'required',
-        ]);
-
         $user = User::where('email', $request->email)->first();
 
         if (! $user || ! Hash::check($request->password, $user->password)) {
@@ -68,8 +54,6 @@ class AuthController extends Controller
 
     /**
      * Handle a forgot password request to the application.
-     *
-     * @return \Illuminate\Http\Response
      */
     public function forgotPassword(Request $request)
     {
@@ -88,8 +72,6 @@ class AuthController extends Controller
 
     /**
      * Get the authenticated User.
-     *
-     * @return \Illuminate\Http\Response
      */
     public function user(Request $request)
     {
@@ -101,8 +83,6 @@ class AuthController extends Controller
 
     /**
      * Log the user out of the application.
-     *
-     * @return \Illuminate\Http\Response
      */
     public function logout(Request $request)
     {

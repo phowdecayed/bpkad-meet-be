@@ -3,10 +3,12 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\User\ChangeEmailRequest;
+use App\Http\Requests\User\ChangeNameRequest;
+use App\Http\Requests\User\ChangePasswordRequest;
 use App\Http\Resources\UserResource;
 use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules\Password;
 
@@ -26,17 +28,12 @@ class UserController extends Controller
     /**
      * Change the authenticated user's password.
      */
-    public function changePassword(Request $request)
+    public function changePassword(ChangePasswordRequest $request)
     {
-        $validated = $request->validate([
-            'current_password' => ['required', 'current_password'],
-            'password' => ['required', 'confirmed', Password::defaults()],
-        ]);
-
         $user = $request->user();
 
         $user->update([
-            'password' => Hash::make($validated['password']),
+            'password' => Hash::make($request->password),
         ]);
 
         // Revoke all existing tokens
@@ -48,13 +45,9 @@ class UserController extends Controller
     /**
      * Change the authenticated user's name.
      */
-    public function changeName(Request $request)
+    public function changeName(ChangeNameRequest $request)
     {
-        $validated = $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-        ]);
-
-        $request->user()->update($validated);
+        $request->user()->update($request->validated());
 
         return response()->json(['message' => 'Name updated successfully.']);
     }
@@ -62,13 +55,9 @@ class UserController extends Controller
     /**
      * Change the authenticated user's email.
      */
-    public function changeEmail(Request $request)
+    public function changeEmail(ChangeEmailRequest $request)
     {
-        $validated = $request->validate([
-            'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email,'.Auth::id()],
-        ]);
-
-        $request->user()->update($validated);
+        $request->user()->update($request->validated());
 
         return response()->json(['message' => 'Email updated successfully.']);
     }

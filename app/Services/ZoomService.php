@@ -60,14 +60,13 @@ class ZoomService
             throw new \Exception('Zoom credentials not configured.');
         }
 
-        $credentials = base64_encode($this->clientId.':'.$this->clientSecret);
-
-        $response = Http::withHeaders([
-            'Authorization' => 'Basic '.$credentials,
-        ])->asForm()->post('https://zoom.us/oauth/token', [
-            'grant_type' => 'account_credentials',
-            'account_id' => $this->accountId,
-        ]);
+        /** @var \Illuminate\Http\Client\Response $response */
+        $response = Http::withBasicAuth($this->clientId, $this->clientSecret)
+            ->asForm()
+            ->post('https://zoom.us/oauth/token', [
+                'grant_type' => 'account_credentials',
+                'account_id' => $this->accountId,
+            ]);
 
         $response->throw(); // Throw an exception if the request fails
 
@@ -77,7 +76,7 @@ class ZoomService
     /**
      * Make an authenticated request to the Zoom API.
      */
-    protected function makeRequest(string $method, string $endpoint, array $data = [])
+    protected function makeRequest(string $method, string $endpoint, array $data = []): Response
     {
         $sendRequest = function () use ($method, $endpoint, $data) {
             $accessToken = $this->getAccessToken();
@@ -93,6 +92,7 @@ class ZoomService
             };
         };
 
+        /** @var \Illuminate\Http\Client\Response $response */
         $response = $sendRequest();
 
         // If token is expired, fetch a new one and retry the request once.
@@ -143,6 +143,7 @@ class ZoomService
             $data['password'] = $meetingData['password'];
         }
 
+        /** @var \Illuminate\Http\Client\Response $response */
         $response = $this->makeRequest('POST', '/users/me/meetings', $data);
 
         if ($response->successful()) {
@@ -194,6 +195,7 @@ class ZoomService
      */
     public function deleteMeeting(string $meetingId): Response
     {
+        /** @var \Illuminate\Http\Client\Response $response */
         $response = $this->makeRequest('DELETE', "/meetings/{$meetingId}");
 
         if ($response->successful()) {
@@ -237,6 +239,7 @@ class ZoomService
      */
     public function updateMeeting(string $meetingId, array $data): Response
     {
+        /** @var \Illuminate\Http\Client\Response $response */
         $response = $this->makeRequest('PATCH', "/meetings/{$meetingId}", $data);
 
         // If the update was successful, fetch the updated meeting details and save them.

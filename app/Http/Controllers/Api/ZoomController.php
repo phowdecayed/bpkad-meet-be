@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\StoreMeetingRequest;
 use App\Services\MeetingService;
 use App\Services\ZoomService;
 use Illuminate\Http\Request;
@@ -40,10 +41,8 @@ class ZoomController extends Controller
         $data = $request->all();
         $data['type'] = 'online'; // Force the type to online for this legacy route
 
-        // We use the core MeetingController's validation by temporarily creating it.
-        // This is not ideal, but avoids duplicating validation logic.
-        $meetingController = new MeetingController($this->meetingService);
-        $validated = $meetingController->validateStoreRequest($data);
+        // Use validate from StoreMeetingRequest to ensure consistency
+        $validated = validator($data, (new StoreMeetingRequest)->rules())->validate();
 
         $meeting = $this->meetingService->createMeeting($validated);
 

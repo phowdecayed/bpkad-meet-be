@@ -15,8 +15,6 @@ class User extends Authenticatable implements CanResetPassword, MustVerifyEmail
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasApiTokens, HasFactory, HasRoles, Notifiable;
 
-    use \Illuminate\Auth\Passwords\CanResetPassword;
-
     /**
      * The attributes that are mass assignable.
      *
