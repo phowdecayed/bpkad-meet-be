@@ -8,7 +8,9 @@ use App\Http\Requests\User\ChangeNameRequest;
 use App\Http\Requests\User\ChangePasswordRequest;
 use App\Http\Resources\UserResource;
 use App\Models\User;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules\Password;
 
@@ -17,7 +19,7 @@ class UserController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(): AnonymousResourceCollection
     {
         $this->authorize('viewAny', User::class);
         $users = User::with('roles')->latest()->paginate();
@@ -28,7 +30,7 @@ class UserController extends Controller
     /**
      * Change the authenticated user's password.
      */
-    public function changePassword(ChangePasswordRequest $request)
+    public function changePassword(ChangePasswordRequest $request): JsonResponse
     {
         $user = $request->user();
 
@@ -45,7 +47,7 @@ class UserController extends Controller
     /**
      * Change the authenticated user's name.
      */
-    public function changeName(ChangeNameRequest $request)
+    public function changeName(ChangeNameRequest $request): JsonResponse
     {
         $request->user()->update($request->validated());
 
@@ -55,7 +57,7 @@ class UserController extends Controller
     /**
      * Change the authenticated user's email.
      */
-    public function changeEmail(ChangeEmailRequest $request)
+    public function changeEmail(ChangeEmailRequest $request): JsonResponse
     {
         $request->user()->update($request->validated());
 
@@ -65,7 +67,7 @@ class UserController extends Controller
     /**
      * Resend the email verification notification for a specific user.
      */
-    public function resendVerificationEmail(Request $request, User $user)
+    public function resendVerificationEmail(Request $request, User $user): JsonResponse
     {
         $this->authorize('manage', $user);
 

@@ -7,13 +7,15 @@ use App\Http\Requests\StoreMeetingLocationRequest;
 use App\Http\Requests\UpdateMeetingLocationRequest;
 use App\Http\Resources\MeetingLocationResource;
 use App\Models\MeetingLocation;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
 class MeetingLocationController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(): AnonymousResourceCollection
     {
         return MeetingLocationResource::collection(MeetingLocation::all());
     }
@@ -21,7 +23,7 @@ class MeetingLocationController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreMeetingLocationRequest $request)
+    public function store(StoreMeetingLocationRequest $request): JsonResponse
     {
         $location = MeetingLocation::create($request->validated());
 
@@ -33,7 +35,7 @@ class MeetingLocationController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(MeetingLocation $meetingLocation)
+    public function show(MeetingLocation $meetingLocation): MeetingLocationResource
     {
         return new MeetingLocationResource($meetingLocation);
     }
@@ -41,7 +43,7 @@ class MeetingLocationController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateMeetingLocationRequest $request, MeetingLocation $meetingLocation)
+    public function update(UpdateMeetingLocationRequest $request, MeetingLocation $meetingLocation): MeetingLocationResource
     {
         $meetingLocation->update($request->validated());
 
@@ -51,7 +53,7 @@ class MeetingLocationController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(MeetingLocation $meetingLocation)
+    public function destroy(MeetingLocation $meetingLocation): JsonResponse
     {
         $meetingLocation->delete();
 
