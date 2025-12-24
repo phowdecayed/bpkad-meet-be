@@ -21,10 +21,13 @@ class Meeting extends Model
         'location_id',
     ];
 
-    protected $casts = [
-        'start_time' => 'datetime',
-        'type' => MeetingType::class,
-    ];
+    protected function casts(): array
+    {
+        return [
+            'start_time' => 'datetime',
+            'type' => MeetingType::class,
+        ];
+    }
 
     protected $with = ['zoomMeeting.setting'];
 

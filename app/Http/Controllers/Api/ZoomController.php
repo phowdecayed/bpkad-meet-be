@@ -10,6 +10,7 @@ use App\Http\Requests\Zoom\GetMeetingRequest;
 use App\Http\Requests\Zoom\UpdateMeetingRequest;
 use App\Services\MeetingService;
 use App\Services\ZoomService;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class ZoomController extends Controller
@@ -27,7 +28,7 @@ class ZoomController extends Controller
     /**
      * Authenticate with Zoom and cache the token.
      */
-    public function authenticate()
+    public function authenticate(): JsonResponse
     {
         try {
             return $this->zoomService->authenticate();
@@ -40,7 +41,7 @@ class ZoomController extends Controller
      * [LEGACY] Create a new Zoom meeting.
      * This is an alias for creating a meeting of type 'online' via the core meeting endpoint.
      */
-    public function createMeeting(StoreMeetingRequest $request)
+    public function createMeeting(StoreMeetingRequest $request): JsonResponse
     {
         // StoreMeetingRequest already handles validation and strict typing
         $validated = $request->validated();
@@ -58,7 +59,7 @@ class ZoomController extends Controller
     /**
      * Delete a Zoom meeting.
      */
-    public function deleteMeeting(DeleteMeetingRequest $request)
+    public function deleteMeeting(DeleteMeetingRequest $request): JsonResponse
     {
         $meetingId = $request->validated()['meetingId'];
 
@@ -78,7 +79,7 @@ class ZoomController extends Controller
     /**
      * Get a specific Zoom meeting or list all meetings.
      */
-    public function getMeeting(GetMeetingRequest $request)
+    public function getMeeting(GetMeetingRequest $request): JsonResponse
     {
         $meetingId = $request->validated()['meetingId'] ?? null;
 
@@ -100,7 +101,7 @@ class ZoomController extends Controller
     /**
      * Get the summary for a specific Zoom meeting.
      */
-    public function getMeetingSummary(string $meetingUuid)
+    public function getMeetingSummary(string $meetingUuid): JsonResponse
     {
         try {
             $response = $this->zoomService->getMeetingSummary($meetingUuid);
@@ -114,7 +115,7 @@ class ZoomController extends Controller
     /**
      * Get details for a past Zoom meeting.
      */
-    public function getPastMeetingDetails(GetMeetingRequest $request)
+    public function getPastMeetingDetails(GetMeetingRequest $request): JsonResponse
     {
         $meetingId = $request->validated()['meetingId'] ?? null;
 
@@ -134,7 +135,7 @@ class ZoomController extends Controller
     /**
      * Update a specific Zoom meeting.
      */
-    public function updateMeeting(UpdateMeetingRequest $request)
+    public function updateMeeting(UpdateMeetingRequest $request): JsonResponse
     {
         $validated = $request->validated();
         $meetingId = $validated['meetingId'];

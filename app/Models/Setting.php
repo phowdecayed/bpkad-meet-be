@@ -15,7 +15,10 @@ class Setting extends Model
         'payload',
     ];
 
-    protected $casts = [
-        'payload' => 'array',
-    ];
+    protected function casts(): array
+    {
+        return [
+            'payload' => 'array',
+        ];
+    }
 }

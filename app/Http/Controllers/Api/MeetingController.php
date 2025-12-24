@@ -13,7 +13,9 @@ use App\Models\Meeting;
 use App\Models\User;
 use App\Services\MeetingService;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
 class MeetingController extends Controller
 {
@@ -29,7 +31,7 @@ class MeetingController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(Request $request)
+    public function index(Request $request): AnonymousResourceCollection
     {
         $user = $request->user();
         $query = Meeting::query()->with(['organizer', 'location']);
@@ -71,7 +73,7 @@ class MeetingController extends Controller
     /**
      * Fetch meetings for a specific date range for calendar view.
      */
-    public function calendar(Request $request)
+    public function calendar(Request $request): AnonymousResourceCollection
     {
         $validated = $request->validate([
             'start_date' => 'required|date',
@@ -89,7 +91,7 @@ class MeetingController extends Controller
     /**
      * Fetch public meetings for a specific date range.
      */
-    public function publicCalendar(Request $request)
+    public function publicCalendar(Request $request): AnonymousResourceCollection
     {
         $validated = $request->validate([
             'start_date' => 'required|date',
@@ -107,7 +109,7 @@ class MeetingController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreMeetingRequest $request)
+    public function store(StoreMeetingRequest $request): JsonResponse
     {
         $this->authorize('create', Meeting::class);
         $validated = $request->validated();
@@ -123,7 +125,7 @@ class MeetingController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Meeting $meeting)
+    public function show(Meeting $meeting): MeetingResource
     {
         $this->authorize('view', $meeting);
 
@@ -133,7 +135,7 @@ class MeetingController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Meeting $meeting)
+    public function destroy(Meeting $meeting): JsonResponse
     {
         $this->authorize('delete', $meeting);
         $this->meetingService->deleteMeeting($meeting);
@@ -144,7 +146,7 @@ class MeetingController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateMeetingRequest $request, Meeting $meeting)
+    public function update(UpdateMeetingRequest $request, Meeting $meeting): MeetingResource
     {
         $this->authorize('update', $meeting);
 
@@ -158,7 +160,7 @@ class MeetingController extends Controller
     /**
      * List participants for a meeting.
      */
-    public function listParticipants(Meeting $meeting)
+    public function listParticipants(Meeting $meeting): AnonymousResourceCollection
     {
         $this->authorize('view', $meeting);
 
@@ -168,7 +170,7 @@ class MeetingController extends Controller
     /**
      * Invite a user to a meeting.
      */
-    public function invite(Request $request, Meeting $meeting)
+    public function invite(Request $request, Meeting $meeting): JsonResponse
     {
         $this->authorize('manageParticipants', $meeting);
 
@@ -184,7 +186,7 @@ class MeetingController extends Controller
     /**
      * Remove a participant from a meeting.
      */
-    public function removeParticipant(Meeting $meeting, User $user)
+    public function removeParticipant(Meeting $meeting, User $user): JsonResponse
     {
         $this->authorize('manageParticipants', $meeting);
 

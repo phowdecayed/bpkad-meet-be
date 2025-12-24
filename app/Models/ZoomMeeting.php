@@ -28,11 +28,14 @@ class ZoomMeeting extends Model
         'setting_id',
     ];
 
-    protected $casts = [
-        'settings' => 'array',
-        'start_time' => 'datetime',
-        'created_at_zoom' => 'datetime',
-    ];
+    protected function casts(): array
+    {
+        return [
+            'settings' => 'array',
+            'start_time' => 'datetime',
+            'created_at_zoom' => 'datetime',
+        ];
+    }
 
     public function meeting()
     {
