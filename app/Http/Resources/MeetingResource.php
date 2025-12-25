@@ -2,10 +2,10 @@
 
 namespace App\Http\Resources;
 
+use App\Enums\MeetingType;
 use App\Models\Setting;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
-use App\Enums\MeetingType;
 
 class MeetingResource extends JsonResource
 {

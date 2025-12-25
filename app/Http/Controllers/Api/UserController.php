@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\User\ChangeAvatarRequest;
 use App\Http\Requests\User\ChangeEmailRequest;
 use App\Http\Requests\User\ChangeNameRequest;
 use App\Http\Requests\User\ChangePasswordRequest;
@@ -62,6 +63,28 @@ class UserController extends Controller
         $request->user()->update($request->validated());
 
         return response()->json(['message' => 'Email updated successfully.']);
+    }
+
+    /**
+     * Change the authenticated user's avatar.
+     */
+    public function changeAvatar(ChangeAvatarRequest $request): JsonResponse
+    {
+        $user = $request->user();
+
+        if ($request->hasFile('avatar')) {
+            if ($user->avatar) {
+                \Illuminate\Support\Facades\Storage::disk('public')->delete($user->avatar);
+            }
+
+            $path = $request->file('avatar')->store('avatars', 'public');
+            $user->update(['avatar' => $path]);
+        }
+
+        return response()->json([
+            'message' => 'Avatar updated successfully.',
+            'avatar_url' => $user->avatar_url,
+        ]);
     }
 
     /**

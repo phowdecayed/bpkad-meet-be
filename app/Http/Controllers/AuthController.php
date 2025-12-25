@@ -3,16 +3,14 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\Auth\LoginRequest;
-use Illuminate\Http\Request;
-use App\Models\User;
-use App\Http\Resources\UserResource;
 use App\Http\Requests\Auth\RegisterRequest;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Auth\Events\Registered;
-use Illuminate\Validation\ValidationException;
-use Illuminate\Support\Facades\Password;
-use Illuminate\Support\Facades\Auth;
+use App\Http\Resources\UserResource;
+use App\Models\User;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Password;
+use Illuminate\Validation\ValidationException;
 
 class AuthController extends Controller
 {

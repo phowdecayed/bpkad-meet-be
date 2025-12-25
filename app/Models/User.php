@@ -23,6 +23,7 @@ class User extends Authenticatable implements CanResetPassword, MustVerifyEmail
     protected $fillable = [
         'name',
         'email',
+        'avatar',
         'password',
     ];
 
@@ -47,6 +48,15 @@ class User extends Authenticatable implements CanResetPassword, MustVerifyEmail
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    protected function avatarUrl(): \Illuminate\Database\Eloquent\Casts\Attribute
+    {
+        return \Illuminate\Database\Eloquent\Casts\Attribute::make(
+            get: fn ($value, $attributes) => $attributes['avatar']
+                ? \Illuminate\Support\Facades\Storage::url($attributes['avatar'])
+                : null,
+        );
     }
 
     public function organizedMeetings()

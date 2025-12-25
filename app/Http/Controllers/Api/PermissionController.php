@@ -3,9 +3,9 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use Spatie\Permission\Models\Permission;
-use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use App\Http\Resources\PermissionResource;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Spatie\Permission\Models\Permission;
 
 class PermissionController extends Controller
 {

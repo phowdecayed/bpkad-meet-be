@@ -56,6 +56,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/user/change-password', [UserController::class, 'changePassword']);
     Route::post('/user/change-name', [UserController::class, 'changeName']);
     Route::post('/user/change-email', [UserController::class, 'changeEmail']);
+    Route::post('/user/change-avatar', [UserController::class, 'changeAvatar']);
 
     // User Management
     Route::get('/users', [UserController::class, 'index'])->middleware('permission:view users');

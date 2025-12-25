@@ -51,7 +51,7 @@ class NoTimeConflict implements DataAwareRule, InvokableRule
 
         $type = $this->data['type'] ?? $this->ignoreMeeting?->type;
         // Handle Enum if it comes from the model
-        if ($type instanceof \App\Enums\MeetingType) {
+        if ($type instanceof MeetingType) {
             $type = $type->value;
         }
 
