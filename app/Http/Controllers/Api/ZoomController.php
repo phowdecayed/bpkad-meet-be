@@ -8,6 +8,7 @@ use App\Http\Requests\StoreMeetingRequest;
 use App\Http\Requests\Zoom\DeleteMeetingRequest;
 use App\Http\Requests\Zoom\GetMeetingRequest;
 use App\Http\Requests\Zoom\UpdateMeetingRequest;
+use App\Models\ZoomMeeting;
 use App\Services\MeetingService;
 use App\Services\ZoomService;
 use Illuminate\Http\JsonResponse;
@@ -63,6 +64,19 @@ class ZoomController extends Controller
     {
         $meetingId = $request->validated()['meetingId'];
 
+        $zoomMeeting = ZoomMeeting::where('zoom_id', $meetingId)->first();
+
+        if ($zoomMeeting && $zoomMeeting->meeting) {
+            $this->authorize('delete', $zoomMeeting->meeting);
+        } else {
+            // If the meeting is not in our database, only allow admins to delete it directly from Zoom
+            // or deny it completely. For safety, we deny it unless the user serves a special role,
+            // but simply returning 404/403 is safer for now.
+            if (! $request->user()->can('manage meetings')) {
+                abort(404, 'Meeting not found in local records.');
+            }
+        }
+
         try {
             $response = $this->zoomService->deleteMeeting($meetingId);
             // Zoom API returns 204 No Content on successful deletion
@@ -82,6 +96,19 @@ class ZoomController extends Controller
     public function getMeeting(GetMeetingRequest $request): JsonResponse
     {
         $meetingId = $request->validated()['meetingId'] ?? null;
+
+        if (! $meetingId) {
+            // List all meetings - only allow if admin, as this leaks all account meetings
+            if (! $request->user()->can('manage meetings')) {
+                abort(403, 'Only admins can list all specific Zoom meetings directly.');
+            }
+        } else {
+            // Get specific meeting
+            $zoomMeeting = ZoomMeeting::where('zoom_id', $meetingId)->first();
+            if ($zoomMeeting && $zoomMeeting->meeting) {
+                $this->authorize('view', $zoomMeeting->meeting);
+            }
+        }
 
         try {
             if ($meetingId) {
@@ -119,6 +146,13 @@ class ZoomController extends Controller
     {
         $meetingId = $request->validated()['meetingId'] ?? null;
 
+        if ($meetingId) {
+            $zoomMeeting = ZoomMeeting::where('zoom_id', $meetingId)->first();
+            if ($zoomMeeting && $zoomMeeting->meeting) {
+                $this->authorize('view', $zoomMeeting->meeting);
+            }
+        }
+
         if (! $meetingId) {
             return response()->json(['error' => 'meetingId parameter is required.'], 400);
         }
@@ -139,6 +173,17 @@ class ZoomController extends Controller
     {
         $validated = $request->validated();
         $meetingId = $validated['meetingId'];
+
+        $zoomMeeting = ZoomMeeting::where('zoom_id', $meetingId)->first();
+
+        if ($zoomMeeting && $zoomMeeting->meeting) {
+            $this->authorize('update', $zoomMeeting->meeting);
+        } else {
+            if (! $request->user()->can('manage meetings')) {
+                abort(404, 'Meeting not found in local records.');
+            }
+        }
+
         // Remove meetingId from data sent to Zoom
         unset($validated['meetingId']);
         $data = $validated;

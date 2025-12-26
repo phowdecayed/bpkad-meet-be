@@ -19,6 +19,7 @@ class ChangeAvatarTest extends TestCase
         Storage::fake('public');
 
         $user = User::factory()->create();
+        $user->refresh();
         $file = UploadedFile::fake()->image('avatar.jpg');
 
         $response = $this->actingAs($user)->postJson('/api/user/change-avatar', [
@@ -30,7 +31,9 @@ class ChangeAvatarTest extends TestCase
 
         // Verify file stored
         $this->assertNotNull($user->fresh()->avatar);
-        Storage::disk('public')->assertExists($user->fresh()->avatar);
+        /** @var \Illuminate\Filesystem\FilesystemAdapter $disk */
+        $disk = Storage::disk('public');
+        $disk->assertExists($user->fresh()->avatar);
     }
 
     #[Test]
@@ -39,23 +42,27 @@ class ChangeAvatarTest extends TestCase
         Storage::fake('public');
 
         $user = User::factory()->create();
+        $user->refresh();
         $oldAvatar = UploadedFile::fake()->image('old.jpg');
         $this->actingAs($user)->postJson('/api/user/change-avatar', ['avatar' => $oldAvatar]);
 
         $oldPath = $user->fresh()->avatar;
-        Storage::disk('public')->assertExists($oldPath);
+        /** @var \Illuminate\Filesystem\FilesystemAdapter $disk */
+        $disk = Storage::disk('public');
+        $disk->assertExists($oldPath);
 
         $newAvatar = UploadedFile::fake()->image('new.jpg');
         $this->actingAs($user)->postJson('/api/user/change-avatar', ['avatar' => $newAvatar]);
 
-        Storage::disk('public')->assertMissing($oldPath);
-        Storage::disk('public')->assertExists($user->fresh()->avatar);
+        $disk->assertMissing($oldPath);
+        $disk->assertExists($user->fresh()->avatar);
     }
 
     #[Test]
     public function avatar_must_be_an_image()
     {
         $user = User::factory()->create();
+        $user->refresh();
 
         $response = $this->actingAs($user)->postJson('/api/user/change-avatar', [
             'avatar' => UploadedFile::fake()->create('document.pdf', 100),

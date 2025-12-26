@@ -37,102 +37,107 @@ class MeetingService
             );
         }
 
-        // Use a database transaction to ensure data integrity
-        return DB::transaction(function () use ($data, $startTime) {
-            // 2. Create the core meeting record
-            $meeting = Meeting::create([
-                'organizer_id' => $data['organizer_id'],
-                'topic' => $data['topic'],
-                'description' => $data['description'] ?? null,
-                'start_time' => $startTime, // Use the parsed Carbon object
-                'duration' => $data['duration'],
-                'type' => $data['type'],
-                'location_id' => $data['location_id'] ?? null,
-            ]);
+        // Use a lock to prevent race conditions for the same location or Zoom account
+        // We lock globally for simplicity, or we could lock by location/resource
+        return \Illuminate\Support\Facades\Cache::lock('meeting_creation', 10)->block(5, function () use ($data, $startTime) {
+            // Use a database transaction to ensure data integrity
+            return DB::transaction(function () use ($data, $startTime) {
+                // 2. Create the core meeting record
+                $meeting = Meeting::create([
+                    'organizer_id' => $data['organizer_id'],
+                    'topic' => $data['topic'],
+                    'description' => $data['description'] ?? null,
+                    'start_time' => $startTime, // Use the parsed Carbon object
+                    'duration' => $data['duration'],
+                    'type' => $data['type'],
+                    'location_id' => $data['location_id'] ?? null,
+                ]);
 
-            // 3. If participants are included, attach them to the meeting
-            if (! empty($data['participants'])) {
-                $meeting->participants()->sync($data['participants']);
-            }
-
-            // 4. If the meeting is online or hybrid, create a Zoom meeting
-            if (in_array($data['type'], [MeetingType::ONLINE->value, MeetingType::HYBRID->value])) {
-                // Find all available zoom credentials from settings
-                $zoomSettings = Setting::where('group', 'zoom')->get();
-
-                if ($zoomSettings->isEmpty()) {
-                    throw ValidationException::withMessages([
-                        'zoom_api' => 'Zoom integration settings are not configured.',
-                    ]);
+                // 3. If participants are included, attach them to the meeting
+                if (! empty($data['participants'])) {
+                    $meeting->participants()->sync($data['participants']);
                 }
 
-                $endTime = $startTime->copy()->addMinutes($data['duration']);
+                // 4. If the meeting is online or hybrid, create a Zoom meeting
+                if (in_array($data['type'], [MeetingType::ONLINE->value, MeetingType::HYBRID->value])) {
+                    // Find all available zoom credentials from settings
+                    $zoomSettings = Setting::where('group', 'zoom')->get();
 
-                $selectedSetting = null;
-                foreach ($zoomSettings as $setting) {
-                    // Get all meetings for this setting and check conflicts in PHP
-                    $existingMeetings = Meeting::whereHas('zoomMeeting', function ($query) use ($setting) {
-                        $query->where('setting_id', $setting->id);
-                    })
-                        ->where('start_time', '<', $endTime)
-                        ->get(['id', 'start_time', 'duration']);
+                    if ($zoomSettings->isEmpty()) {
+                        throw ValidationException::withMessages([
+                            'zoom_api' => 'Zoom integration settings are not configured.',
+                        ]);
+                    }
 
-                    $conflictingMeetingsCount = 0;
-                    foreach ($existingMeetings as $existingMeeting) {
-                        $existingEndTime = Carbon::parse($existingMeeting->start_time)->addMinutes($existingMeeting->duration);
-                        if ($existingEndTime > $startTime) {
-                            $conflictingMeetingsCount++;
+                    $endTime = $startTime->copy()->addMinutes($data['duration']);
+
+                    $selectedSetting = null;
+                    foreach ($zoomSettings as $setting) {
+                        // Get all meetings for this setting and check conflicts in PHP
+                        $existingMeetings = Meeting::whereHas('zoomMeeting', function ($query) use ($setting) {
+                            $query->where('setting_id', $setting->id);
+                        })
+                            ->where('start_time', '<', $endTime);
+
+                        if (DB::connection()->getDriverName() === 'sqlite') {
+                            $existingMeetings->whereRaw("datetime(start_time, '+' || duration || ' minutes') > ?", [$startTime]);
+                        } else {
+                            $existingMeetings->whereRaw("start_time + (duration * interval '1 minute') > ?", [$startTime]);
+                        }
+
+                        $existingMeetings = $existingMeetings->get(['id', 'start_time', 'duration']);
+
+                        $conflictingMeetingsCount = $existingMeetings->count();
+
+                        if ($conflictingMeetingsCount < 2) {
+                            $selectedSetting = $setting;
+                            break;
                         }
                     }
 
-                    if ($conflictingMeetingsCount < 2) {
-                        $selectedSetting = $setting;
-                        break;
+                    if (! $selectedSetting) {
+                        throw ValidationException::withMessages([
+                            'zoom_api' => 'All available Zoom accounts are at their maximum concurrent meeting limit for the selected time.',
+                        ]);
+                    }
+
+                    $credentials = $selectedSetting->payload;
+                    $this->zoomService->setCredentials(
+                        $credentials['client_id'],
+                        $credentials['client_secret'],
+                        $credentials['account_id']
+                    );
+
+                    $zoomResponse = $this->zoomService->createMeeting(
+                        [
+                            'topic' => $data['topic'],
+                            // Send the time to Zoom in UTC format, as required by their API
+                            'start_time' => $startTime->clone()->utc()->toIso8601String(),
+                            'duration' => $data['duration'],
+                            'password' => $data['password'] ?? null,
+                            // Pass any other zoom-specific settings from the request
+                            'settings' => $data['settings'] ?? [],
+                        ],
+                        $meeting->id, // Pass the parent meeting ID
+                        $selectedSetting->id
+                    );
+
+                    if (! $zoomResponse->successful()) {
+                        // If Zoom API call fails, roll back the transaction
+                        throw ValidationException::withMessages([
+                            'zoom_api' => 'Failed to create Zoom meeting: '.$zoomResponse->body(),
+                        ]);
+                    }
+
+                    // Attach the host_key to the meeting model for the response
+                    if (isset($credentials['host_key'])) {
+                        $meeting->host_key = $credentials['host_key'];
                     }
                 }
 
-                if (! $selectedSetting) {
-                    throw ValidationException::withMessages([
-                        'zoom_api' => 'All available Zoom accounts are at their maximum concurrent meeting limit for the selected time.',
-                    ]);
-                }
-
-                $credentials = $selectedSetting->payload;
-                $this->zoomService->setCredentials(
-                    $credentials['client_id'],
-                    $credentials['client_secret'],
-                    $credentials['account_id']
-                );
-
-                $zoomResponse = $this->zoomService->createMeeting(
-                    [
-                        'topic' => $data['topic'],
-                        // Send the time to Zoom in UTC format, as required by their API
-                        'start_time' => $startTime->clone()->utc()->toIso8601String(),
-                        'duration' => $data['duration'],
-                        'password' => $data['password'] ?? null,
-                        // Pass any other zoom-specific settings from the request
-                        'settings' => $data['settings'] ?? [],
-                    ],
-                    $meeting->id, // Pass the parent meeting ID
-                    $selectedSetting->id
-                );
-
-                if (! $zoomResponse->successful()) {
-                    // If Zoom API call fails, roll back the transaction
-                    throw ValidationException::withMessages([
-                        'zoom_api' => 'Failed to create Zoom meeting: '.$zoomResponse->body(),
-                    ]);
-                }
-
-                // Attach the host_key to the meeting model for the response
-                if (isset($credentials['host_key'])) {
-                    $meeting->host_key = $credentials['host_key'];
-                }
-            }
-
-            // Eager load the relationships for the response
-            return $meeting->load(['location', 'zoomMeeting']);
+                // Eager load the relationships for the response
+                return $meeting->load(['location', 'zoomMeeting']);
+            });
         });
     }
 
@@ -157,7 +162,12 @@ class MeetingService
                     $credentials['client_secret'],
                     $credentials['account_id']
                 );
-                $this->zoomService->deleteMeeting($meeting->zoomMeeting->zoom_id);
+                try {
+                    $this->zoomService->deleteMeeting($meeting->zoomMeeting->zoom_id);
+                } catch (\Exception $e) {
+                    // Log the error but continue to delete the local record
+                    logger()->error('Failed to delete Zoom meeting: '.$e->getMessage());
+                }
             }
         }
 
@@ -235,18 +245,20 @@ class MeetingService
             $query->where('id', '!=', $excludeMeetingId);
         }
 
-        $meetings = $query->get();
+        $query->where(function ($q) use ($newStartTime, $newEndTime) {
+            $q->where('start_time', '<', $newEndTime);
 
-        foreach ($meetings as $meeting) {
-            $existingStartTime = Carbon::parse($meeting->start_time);
-            $existingEndTime = $existingStartTime->copy()->addMinutes($meeting->duration);
-
-            // Check for overlap
-            if ($newStartTime < $existingEndTime && $newEndTime > $existingStartTime) {
-                throw ValidationException::withMessages([
-                    'location_id' => 'This location is already booked for the selected time slot.',
-                ]);
+            if (DB::connection()->getDriverName() === 'sqlite') {
+                $q->whereRaw("datetime(start_time, '+' || duration || ' minutes') > ?", [$newStartTime]);
+            } else {
+                $q->whereRaw("start_time + (duration * interval '1 minute') > ?", [$newStartTime]);
             }
+        });
+
+        if ($query->exists()) {
+            throw ValidationException::withMessages([
+                'location_id' => 'This location is already booked for the selected time slot.',
+            ]);
         }
     }
 }

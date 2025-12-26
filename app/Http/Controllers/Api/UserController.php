@@ -60,7 +60,10 @@ class UserController extends Controller
      */
     public function changeEmail(ChangeEmailRequest $request): JsonResponse
     {
-        $request->user()->update($request->validated());
+        $request->user()->update([
+            'email' => $request->email,
+            'email_verified_at' => null,
+        ]);
 
         return response()->json(['message' => 'Email updated successfully.']);
     }

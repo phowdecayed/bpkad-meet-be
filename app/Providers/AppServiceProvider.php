@@ -21,6 +21,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        \Illuminate\Database\Eloquent\Model::shouldBeStrict(! app()->isProduction());
+
         VerifyEmail::toMailUsing(function (object $notifiable, string $url) {
             $frontendUrl = config('app.frontend_url', 'http://localhost:3000');
             $verifyUrl = $frontendUrl.'/verify-email?url='.$url;

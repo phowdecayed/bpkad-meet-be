@@ -18,7 +18,9 @@ class SettingResource extends JsonResource
             'id' => $this->id,
             'name' => $this->name,
             'group' => $this->group,
-            'payload' => $this->payload,
+            'payload' => collect($this->payload)->map(function ($value, $key) {
+                return $key === 'client_secret' ? '********' : $value;
+            }),
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
         ];
