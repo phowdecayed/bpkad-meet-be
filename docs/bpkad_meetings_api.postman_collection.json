@@ -45,6 +45,51 @@
 						}
 					},
 					"response": []
+				},
+				{
+					"name": "Submit Public Attendance",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"John Doe\",\n    \"nip\": \"123456789\",\n    \"jabatan\": \"Staff\",\n    \"opd\": \"BPKAD\",\n    \"signature\": \"base64_signature_string\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/public/meetings/:uuid/attendance",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"public",
+								"meetings",
+								":uuid",
+								"attendance"
+							],
+							"variable": [
+								{
+									"key": "uuid",
+									"value": "meeting-uuid-123"
+								}
+							]
+						}
+					},
+					"response": []
 				}
 			]
 		},
@@ -434,6 +479,40 @@
 								"api",
 								"user",
 								"change-password"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Change Avatar",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "avatar",
+									"type": "file",
+									"src": "/path/to/avatar.jpg"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/api/user/change-avatar",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"user",
+								"change-avatar"
 							]
 						}
 					},
@@ -1324,6 +1403,125 @@
 						}
 					},
 					"response": []
+				},
+				{
+					"name": "List Attendances",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/meetings/1/attendances",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"meetings",
+								"1",
+								"attendances"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Export Attendances",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "*/*"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/meetings/1/attendances/export",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"meetings",
+								"1",
+								"attendances",
+								"export"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Upload Meeting Material",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "title",
+									"value": "Presentation Slides",
+									"type": "text"
+								},
+								{
+									"key": "file",
+									"type": "file",
+									"src": "/path/to/slides.pdf"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/api/meetings/1/materials",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"meetings",
+								"1",
+								"materials"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Meeting Material",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/materials/1",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"materials",
+								"1"
+							]
+						}
+					},
+					"response": []
 				}
 			]
 		},
@@ -1583,6 +1781,32 @@
 									"key": "meetingId",
 									"value": "123456789"
 								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Sync Zoom Data",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/zoom/meetings/12345/sync",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"zoom",
+								"meetings",
+								"12345",
+								"sync"
 							]
 						}
 					},
