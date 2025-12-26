@@ -15,6 +15,19 @@
     | `end_date` | date | required | The end of the date range (e.g., `2025-08-31`). |
 -   **Success Response (200):** A collection of meeting objects within the specified range.
 
+### 2. Get Meetings for Calendar
+
+-   **Method:** `GET`
+-   **Endpoint:** `/api/calendar`
+-   **Description:** Retrieves all meetings within a specific date range, suitable for a calendar view. **Requires `view meetings` permission.**
+-   **Headers:** `Authorization: Bearer <token>`
+-   **Query Parameters:**
+    | Parameter | Type | Validation | Description |
+    |---|---|---|---|
+    | `start_date` | date | required | The start of the date range (e.g., `2025-08-01`). |
+    | `end_date` | date | required | The end of the date range (e.g., `2025-08-31`). |
+-   **Success Response (200):** A collection of meeting objects with organizer, location, and zoom details.
+
 ### 2. List All Meetings (Paginated)
 
 -   **Method:** `GET`
