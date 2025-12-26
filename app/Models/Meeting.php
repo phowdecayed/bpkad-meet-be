@@ -19,6 +19,7 @@ class Meeting extends Model
         'duration',
         'type',
         'location_id',
+        'notulen',
     ];
 
     protected function casts(): array

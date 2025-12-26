@@ -27,6 +27,7 @@ class UpdateMeetingRequest extends FormRequest
             'description' => 'nullable|string',
             'start_time' => ['sometimes', 'required', 'date', new NoTimeConflict($this->route('meeting'))],
             'duration' => 'sometimes|required|integer|min:1',
+            'notulen' => 'sometimes|nullable|string',
             'type' => 'sometimes|string|in:online,offline,hybrid',
             'location_id' => 'nullable|exists:meeting_locations,id',
             'settings' => 'nullable|array',

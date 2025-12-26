@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\MeetingAttendanceController;
 use App\Http\Controllers\Api\MeetingController;
 use App\Http\Controllers\Api\MeetingLocationController;
 use App\Http\Controllers\Api\PermissionController;
@@ -42,7 +43,8 @@ Route::middleware(['auth:sanctum', 'throttle:120,1'])->group(function () {
     Route::get('/meetings/{meeting}/participants', [MeetingController::class, 'listParticipants'])->middleware('permission:view meetings');
     Route::post('/meetings/{meeting}/invite', [MeetingController::class, 'invite'])->middleware('permission:edit meetings');
     Route::delete('/meetings/{meeting}/participants/{user}', [MeetingController::class, 'removeParticipant'])->middleware('permission:edit meetings');
-    Route::get('/meetings/{meeting}/attendances', [App\Http\Controllers\Api\MeetingAttendanceController::class, 'index'])->middleware('permission:view meetings');
+    Route::get('/meetings/{meeting}/attendances', [MeetingAttendanceController::class, 'index'])->middleware('permission:view meetings'); // Protected List
+    Route::get('/meetings/{meeting}/attendances/export', [MeetingAttendanceController::class, 'export'])->middleware('permission:view meetings'); // Export CSV
     Route::apiResource('meeting-locations', MeetingLocationController::class)->middleware('permission:edit meetings');
 
     // Zoom Specific Routes

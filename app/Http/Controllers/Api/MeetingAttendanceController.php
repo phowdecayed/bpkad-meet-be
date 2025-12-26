@@ -69,4 +69,46 @@ class MeetingAttendanceController extends Controller
             'data' => $attendances,
         ]);
     }
+
+    /**
+     * Export attendance list to CSV.
+     */
+    public function export(Request $request, Meeting $meeting)
+    {
+        if ($request->user()->cannot('view', $meeting)) {
+            abort(403);
+        }
+
+        $attendances = $meeting->attendances;
+        $filename = 'attendance-'.$meeting->uuid.'.csv';
+
+        $headers = [
+            'Content-Type' => 'text/csv',
+            'Content-Disposition' => "attachment; filename=\"$filename\"",
+            'Pragma' => 'no-cache',
+            'Cache-Control' => 'must-revalidate, post-check=0, pre-check=0',
+            'Expires' => '0',
+        ];
+
+        return response()->stream(function () use ($attendances) {
+            $handle = fopen('php://output', 'w');
+            // Add BOM for Excel compatibility with UTF-8
+            fwrite($handle, "\xEF\xBB\xBF");
+
+            // Header Row
+            fputcsv($handle, ['Name', 'Email', 'Agency', 'Check-in Time']);
+
+            // Data Rows
+            foreach ($attendances as $attendance) {
+                fputcsv($handle, [
+                    $attendance->name,
+                    $attendance->email,
+                    $attendance->agency,
+                    $attendance->created_at->format('Y-m-d H:i:s'),
+                ]);
+            }
+
+            fclose($handle);
+        }, 200, $headers);
+    }
 }

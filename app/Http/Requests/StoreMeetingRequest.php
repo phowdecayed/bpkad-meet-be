@@ -37,6 +37,7 @@ class StoreMeetingRequest extends FormRequest
             ],
             'password' => 'nullable|string|max:10', // Zoom password validation
             'settings' => 'nullable|array', // For Zoom settings
+            'notulen' => 'nullable|string',
             'participants' => 'nullable|array',
             'participants.*' => 'integer|exists:users,id',
         ];
