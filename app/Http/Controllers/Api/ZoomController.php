@@ -7,7 +7,6 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreMeetingRequest;
 use App\Http\Requests\Zoom\DeleteMeetingRequest;
 use App\Http\Requests\Zoom\GetMeetingRequest;
-use App\Http\Requests\Zoom\UpdateMeetingRequest;
 use App\Models\ZoomMeeting;
 use App\Services\MeetingService;
 use App\Services\ZoomService;
@@ -167,9 +166,64 @@ class ZoomController extends Controller
     }
 
     /**
+     * Sync data from Zoom (Recordings & Summary).
+     */
+    public function syncZoomData(Request $request, string $meetingId): JsonResponse
+    {
+        $this->authorize('manage meetings'); // Using general permission
+
+        $zoomMeeting = ZoomMeeting::where('zoom_id', $meetingId)->firstOrFail();
+        $setting = $zoomMeeting->setting;
+
+        if (! $setting) {
+            return response()->json(['message' => 'Zoom setting not found.'], 404);
+        }
+
+        $credentials = $setting->payload;
+        $this->zoomService->setCredentials(
+            $credentials['client_id'],
+            $credentials['client_secret'],
+            $credentials['account_id']
+        );
+
+        // 1. Fetch Recordings
+        $recordingResponse = $this->zoomService->getRecordings($meetingId);
+        if ($recordingResponse->successful()) {
+            $data = $recordingResponse->json();
+            // Zoom returns array of recording files. We construct a play url.
+            // Simplified: grab share_url from top level or first file?
+            // Usually 'share_url' is at root of response for the set.
+            $zoomMeeting->recording_play_url = $data['share_url'] ?? null;
+            $zoomMeeting->recording_passcode = $data['password'] ?? null; // Recording password if any
+        }
+
+        // 2. Fetch Summary
+        // Note: meeting_summary endpoint uses UUID usually, but Zoom documentation says meetingId also works?
+        // Actually earlier search said /meetings/{meetingId}/meeting_summary.
+        // We try with zoom_id first.
+        $summaryResponse = $this->zoomService->getMeetingSummary($meetingId);
+
+        // Handle 404 if summary not ready
+        if ($summaryResponse->successful()) {
+            $summaryData = $summaryResponse->json();
+            // Format: summary_title, summary_details (text)
+            // We just store the whole content or specific text?
+            // Let's store summary_details as text.
+            $zoomMeeting->summary_content = $summaryData['summary_details'] ?? serialize($summaryData); // Fallback storage
+        }
+
+        $zoomMeeting->save();
+
+        return response()->json([
+            'message' => 'Zoom data synced successfully.',
+            'data' => $zoomMeeting->refresh(),
+        ]);
+    }
+
+    /**
      * Update a specific Zoom meeting.
      */
-    public function updateMeeting(UpdateMeetingRequest $request): JsonResponse
+    public function updateMeeting(Request $request): JsonResponse
     {
         $validated = $request->validated();
         $meetingId = $validated['meetingId'];

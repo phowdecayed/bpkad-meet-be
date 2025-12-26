@@ -26,6 +26,9 @@ class ZoomMeeting extends Model
         'password',
         'settings',
         'setting_id',
+        'recording_play_url',
+        'recording_passcode',
+        'summary_content',
     ];
 
     protected function casts(): array

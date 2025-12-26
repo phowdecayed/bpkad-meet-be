@@ -29,6 +29,17 @@ class Meeting extends Model
         ];
     }
 
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($model) {
+            if (empty($model->uuid)) {
+                $model->uuid = (string) \Illuminate\Support\Str::uuid();
+            }
+        });
+    }
+
     protected $with = ['zoomMeeting.setting'];
 
     public function setStartTimeAttribute($value)
@@ -54,5 +65,10 @@ class Meeting extends Model
     public function zoomMeeting()
     {
         return $this->hasOne(ZoomMeeting::class);
+    }
+
+    public function attendances()
+    {
+        return $this->hasMany(MeetingAttendance::class);
     }
 }

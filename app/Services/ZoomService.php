@@ -260,4 +260,12 @@ class ZoomService
     {
         return $this->makeRequest('GET', '/users/me/meetings');
     }
+
+    /**
+     * Get meeting recordings.
+     */
+    public function getRecordings(string $meetingId)
+    {
+        return $this->makeRequest('GET', "/meetings/{$meetingId}/recordings");
+    }
 }

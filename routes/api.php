@@ -24,7 +24,10 @@ Route::get('/email/verify/{id}/{hash}', [VerificationController::class, 'verify'
 // Public Calendar Route
 Route::get('/public/calendar', [MeetingController::class, 'publicCalendar']);
 
-Route::middleware('auth:sanctum')->group(function () {
+// Public Attendance Route
+Route::post('/public/meetings/{uuid}/attendance', [App\Http\Controllers\Api\MeetingAttendanceController::class, 'storePublic']);
+
+Route::middleware(['auth:sanctum', 'throttle:120,1'])->group(function () {
     // User and Auth
     Route::post('/register', [AuthController::class, 'register'])->middleware('permission:manage users');
     Route::get('/user', [AuthController::class, 'user']);
@@ -39,6 +42,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/meetings/{meeting}/participants', [MeetingController::class, 'listParticipants'])->middleware('permission:view meetings');
     Route::post('/meetings/{meeting}/invite', [MeetingController::class, 'invite'])->middleware('permission:edit meetings');
     Route::delete('/meetings/{meeting}/participants/{user}', [MeetingController::class, 'removeParticipant'])->middleware('permission:edit meetings');
+    Route::get('/meetings/{meeting}/attendances', [App\Http\Controllers\Api\MeetingAttendanceController::class, 'index'])->middleware('permission:view meetings');
     Route::apiResource('meeting-locations', MeetingLocationController::class)->middleware('permission:edit meetings');
 
     // Zoom Specific Routes
@@ -48,6 +52,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::patch('/meetings', [ZoomController::class, 'updateMeeting']);
         Route::delete('/meetings', [ZoomController::class, 'deleteMeeting']);
         Route::get('/meetings', [ZoomController::class, 'getMeeting']);
+        Route::get('/meetings/{meetingId}/sync', [ZoomController::class, 'syncZoomData']); // New Sync Route
         Route::get('/meetings/{meetingUuid}/summary', [ZoomController::class, 'getMeetingSummary']);
         Route::get('/past_meetings', [ZoomController::class, 'getPastMeetingDetails']);
     });

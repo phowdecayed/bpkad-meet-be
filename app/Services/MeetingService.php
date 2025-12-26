@@ -208,16 +208,16 @@ class MeetingService
             // Handle Type Transitions
             // Case 1: Switching TO Online/Hybrid from Offline (or if it was Online but missing Zoom meeting)
             if (in_array($meeting->type, [MeetingType::ONLINE, MeetingType::HYBRID]) && ! $meeting->zoomMeeting) {
-                 // Create a Zoom meeting (using similar logic to createMeeting)
-                 // We need to fetch available credentials first
+                // Create a Zoom meeting (using similar logic to createMeeting)
+                // We need to fetch available credentials first
                 $zoomSettings = Setting::where('group', 'zoom')->get();
 
                 if ($zoomSettings->isNotEmpty()) {
                     $endTime = $meeting->start_time->copy()->addMinutes($meeting->duration);
                     $selectedSetting = null;
 
-                     foreach ($zoomSettings as $setting) {
-                        $existingMeetingsQuery = Meeting::whereHas('zoomMeeting', fn($q) => $q->where('setting_id', $setting->id))
+                    foreach ($zoomSettings as $setting) {
+                        $existingMeetingsQuery = Meeting::whereHas('zoomMeeting', fn ($q) => $q->where('setting_id', $setting->id))
                             ->where('start_time', '<', $endTime);
 
                         if (DB::connection()->getDriverName() === 'sqlite') {
@@ -226,47 +226,48 @@ class MeetingService
                             $existingMeetingsQuery->whereRaw("start_time + (duration * interval '1 minute') > ?", [$meeting->start_time]);
                         }
 
-                         if ($existingMeetingsQuery->count() < 2) {
+                        if ($existingMeetingsQuery->count() < 2) {
                             $selectedSetting = $setting;
                             break;
                         }
                     }
 
                     if ($selectedSetting) {
-                         $credentials = $selectedSetting->payload;
-                         $this->zoomService->setCredentials($credentials['client_id'], $credentials['client_secret'], $credentials['account_id']);
+                        $credentials = $selectedSetting->payload;
+                        $this->zoomService->setCredentials($credentials['client_id'], $credentials['client_secret'], $credentials['account_id']);
 
-                         $zoomResponse = $this->zoomService->createMeeting([
+                        $zoomResponse = $this->zoomService->createMeeting([
                             'topic' => $meeting->topic,
                             'start_time' => $meeting->start_time->clone()->utc()->toIso8601String(),
                             'duration' => $meeting->duration,
                             'password' => $data['password'] ?? null, // Add password support
-                         ], $meeting->id, $selectedSetting->id);
+                        ], $meeting->id, $selectedSetting->id);
 
-                         if ($zoomResponse->successful()) {
-                             $meeting->refresh();
-                             return $meeting->load(['organizer', 'location', 'zoomMeeting']); // Return early or reload
-                         }
+                        if ($zoomResponse->successful()) {
+                            $meeting->refresh();
+
+                            return $meeting->load(['organizer', 'location', 'zoomMeeting']); // Return early or reload
+                        }
                     }
                 }
             }
 
             // Case 2: Switching TO Offline from Online/Hybrid
             if ($meeting->type === MeetingType::OFFLINE && $meeting->zoomMeeting) {
-                 // Delete the Zoom meeting to free up the slot
-                 $zoomSetting = $meeting->zoomMeeting->setting;
-                 if ($zoomSetting) {
-                     $credentials = $zoomSetting->payload;
-                     $this->zoomService->setCredentials($credentials['client_id'], $credentials['client_secret'], $credentials['account_id']);
-                     try {
-                         $this->zoomService->deleteMeeting($meeting->zoomMeeting->zoom_id);
-                         $meeting->zoomMeeting()->delete(); // Ensure local record is deleted too
-                         $meeting->unsetRelation('zoomMeeting');
-                         $meeting->refresh();
-                     } catch (\Exception $e) {
-                         logger()->error('Failed to delete Zoom meeting during type transition: '.$e->getMessage());
-                     }
-                 }
+                // Delete the Zoom meeting to free up the slot
+                $zoomSetting = $meeting->zoomMeeting->setting;
+                if ($zoomSetting) {
+                    $credentials = $zoomSetting->payload;
+                    $this->zoomService->setCredentials($credentials['client_id'], $credentials['client_secret'], $credentials['account_id']);
+                    try {
+                        $this->zoomService->deleteMeeting($meeting->zoomMeeting->zoom_id);
+                        $meeting->zoomMeeting()->delete(); // Ensure local record is deleted too
+                        $meeting->unsetRelation('zoomMeeting');
+                        $meeting->refresh();
+                    } catch (\Exception $e) {
+                        logger()->error('Failed to delete Zoom meeting during type transition: '.$e->getMessage());
+                    }
+                }
             }
 
             // Case 3: Just updating details of an existing Online/Hybrid meeting
