@@ -170,9 +170,16 @@ class ZoomController extends Controller
      */
     public function syncZoomData(Request $request, string $meetingId): JsonResponse
     {
-        $this->authorize('manage meetings'); // Using general permission
-
         $zoomMeeting = ZoomMeeting::where('zoom_id', $meetingId)->firstOrFail();
+
+        if ($zoomMeeting->meeting) {
+            $this->authorize('update', $zoomMeeting->meeting);
+        } else {
+            if (! $request->user()->can('manage meetings')) {
+                abort(403);
+            }
+        }
+
         $setting = $zoomMeeting->setting;
 
         if (! $setting) {
@@ -213,6 +220,21 @@ class ZoomController extends Controller
         }
 
         $zoomMeeting->save();
+
+        // 3. Sync Status to Parent Meeting
+        // Zoom statuses: waiting, started, finished
+        if ($zoomMeeting->meeting) {
+            $statusMapping = [
+                'started' => \App\Enums\MeetingStatus::STARTED,
+                'finished' => \App\Enums\MeetingStatus::FINISHED,
+                // 'waiting' -> remains SCHEDULED or whatever current state
+            ];
+
+            // Check if zoom status maps to one of our statuses
+            if (isset($statusMapping[$zoomMeeting->status])) {
+                $zoomMeeting->meeting->update(['status' => $statusMapping[$zoomMeeting->status]]);
+            }
+        }
 
         return response()->json([
             'message' => 'Zoom data synced successfully.',

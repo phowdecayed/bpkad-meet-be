@@ -29,6 +29,7 @@ class UpdateMeetingRequest extends FormRequest
             'duration' => 'sometimes|required|integer|min:1',
             'notulen' => 'sometimes|nullable|string',
             'type' => 'sometimes|string|in:online,offline,hybrid',
+            'status' => ['sometimes', 'string', \Illuminate\Validation\Rule::enum(\App\Enums\MeetingStatus::class)],
             'location_id' => 'nullable|exists:meeting_locations,id',
             'settings' => 'nullable|array',
         ];

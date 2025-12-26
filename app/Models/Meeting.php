@@ -18,6 +18,7 @@ class Meeting extends Model
         'start_time',
         'duration',
         'type',
+        'status',
         'location_id',
         'notulen',
     ];
@@ -27,6 +28,7 @@ class Meeting extends Model
         return [
             'start_time' => 'datetime',
             'type' => MeetingType::class,
+            'status' => \App\Enums\MeetingStatus::class,
         ];
     }
 
@@ -71,5 +73,10 @@ class Meeting extends Model
     public function attendances()
     {
         return $this->hasMany(MeetingAttendance::class);
+    }
+
+    public function materials()
+    {
+        return $this->hasMany(MeetingMaterial::class);
     }
 }

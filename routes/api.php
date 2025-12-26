@@ -45,6 +45,8 @@ Route::middleware(['auth:sanctum', 'throttle:120,1'])->group(function () {
     Route::delete('/meetings/{meeting}/participants/{user}', [MeetingController::class, 'removeParticipant'])->middleware('permission:edit meetings');
     Route::get('/meetings/{meeting}/attendances', [MeetingAttendanceController::class, 'index'])->middleware('permission:view meetings'); // Protected List
     Route::get('/meetings/{meeting}/attendances/export', [MeetingAttendanceController::class, 'export'])->middleware('permission:view meetings'); // Export CSV
+    Route::post('/meetings/{meeting}/materials', [App\Http\Controllers\Api\MeetingMaterialController::class, 'store'])->middleware('permission:edit meetings');
+    Route::delete('/materials/{material}', [App\Http\Controllers\Api\MeetingMaterialController::class, 'destroy'])->middleware('permission:edit meetings');
     Route::apiResource('meeting-locations', MeetingLocationController::class)->middleware('permission:edit meetings');
 
     // Zoom Specific Routes
