@@ -38,7 +38,7 @@ class Meeting extends Model
 
     public function organizer()
     {
-        return $this->belongsTo(User::class, 'organizer_id');
+        return $this->belongsTo(User::class, 'organizer_id')->withTrashed();
     }
 
     public function participants()
