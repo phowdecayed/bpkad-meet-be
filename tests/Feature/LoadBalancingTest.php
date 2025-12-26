@@ -34,7 +34,7 @@ class LoadBalancingTest extends TestCase
                 ->times(3)
                 ->andReturnUsing(function ($data, $meetingId, $settingId) {
                     // Simulate what ZoomService::saveMeeting does
-                    \App\Models\ZoomMeeting::create([
+                    ZoomMeeting::create([
                         'meeting_id' => $meetingId,
                         'setting_id' => $settingId,
                         'zoom_id' => rand(1000, 9999),
